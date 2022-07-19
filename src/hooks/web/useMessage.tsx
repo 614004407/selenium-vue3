@@ -35,30 +35,21 @@ interface ConfirmOptions {
 }
 
 function getIcon(iconType: string) {
-  try {
-    if (iconType === 'warning') {
-      return <InfoCircleFilled class="modal-icon-warning" />;
-    } else if (iconType === 'success') {
-      return <CheckCircleFilled class="modal-icon-success" />;
-    } else if (iconType === 'info') {
-      return <InfoCircleFilled class="modal-icon-info" />;
-    } else {
-      return <CloseCircleFilled class="modal-icon-error" />;
-    }
-  } catch (e) {
-    console.log(e);
+  if (iconType === 'warning') {
+    return <InfoCircleFilled class="modal-icon-warning" />;
+  } else if (iconType === 'success') {
+    return <CheckCircleFilled class="modal-icon-success" />;
+  } else if (iconType === 'info') {
+    return <InfoCircleFilled class="modal-icon-info" />;
+  } else {
+    return <CloseCircleFilled class="modal-icon-error" />;
   }
 }
 
 function renderContent({ content }: Pick<ModalOptionsEx, 'content'>) {
-  try {
-    if (isString(content)) {
-      return <div innerHTML={`<div>${content as string}</div>`}></div>;
-    } else {
-      return content;
-    }
-  } catch (e) {
-    console.log(e);
+  if (isString(content)) {
+    return <div innerHTML={`<div>${content as string}</div>`}></div>;
+  } else {
     return content;
   }
 }
