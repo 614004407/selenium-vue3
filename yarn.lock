@@ -11499,13 +11499,6 @@ vue-json-pretty@^2.0.4:
   resolved "https://registry.nlark.com/vue-json-pretty/download/vue-json-pretty-2.0.4.tgz#2f6e7f59a84e0e1ef41dd33663c3e1d1a9734a29"
   integrity sha1-L25/WahODh70HdM2Y8Ph0alzSik=
 
-vue-print-nb-jeecg@^1.0.10:
-  version "1.0.11"
-  resolved "https://packages.aliyun.com/60e053ce4690c27532d3dfd3/npm/npm-registry/vue-print-nb-jeecg/-/vue-print-nb-jeecg-1.0.11.tgz#63d1e0802facae02dd6482454debe998f6779d07"
-  integrity sha512-jp/7tnKm8A+vYsUqMY+8ODOi8WayjEYkf/r1Z7enUfMe3Rk9ytGIJonAhnwLBWMoH7mWndgMayOPMki1dFUlGA==
-  dependencies:
-    babel-plugin-transform-runtime "^6.23.0"
-
 vue-router@^4.0.12:
   version "4.0.12"
   resolved "https://registry.npmmirror.com/vue-router/download/vue-router-4.0.12.tgz?cache=0&sync_timestamp=1635262518681&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2Fvue-router%2Fdownload%2Fvue-router-4.0.12.tgz#8dc792cddf5bb1abcc3908f9064136de7e13c460"
