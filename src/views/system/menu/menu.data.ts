@@ -148,7 +148,6 @@ export const formSchema: FormSchema[] = [
     componentProps: {
       placeholder: '请输入前端组件',
     },
-    defaultValue: 'layouts/RouteView',
     required: true,
     ifShow: ({ values }) => !isButton(values.menuType),
   },
