@@ -96,10 +96,12 @@ docker build -t jeecgboot-vue3 .
 docker run --name jeecgboot-vue3-nginx -p 80:80 -d jeecgboot-vue3
 ```
 
-- host设置(127.0.0.1不行，得设置具体IP)
+- host设置
+
 ```bash
-192.168.5.100 jeecg-boot-system
+{改成具体IP} jeecg-boot-system
 ```
+> 127.0.0.1不行，得设置具体IP
 
 
 ## 功能模块
