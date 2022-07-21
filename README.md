@@ -77,27 +77,39 @@ yarn build
 ```
 
 
-## Docker镜像用法
-- 编译项目
+## Docker镜像启动前端(单体模式)
+
+- host设置
+
+```bash
+127.0.0.1 jeecg-boot-system
+127.0.0.1 jeecg-boot-gateway
+```
+>注意： 需要把`127.0.0.1`替换成真实IP 比如`192.`开头,不然后端不通。
+
+- 下载项目
 
 ```bash
 git clone https://github.com/jeecgboot/jeecgboot-vue3.git
 
 cd jeecgboot-vue3
 
+```
+- 修改后台域名
+.env.production
+
+```bash
+VITE_GLOB_API_URL=/jeecgboot
+VITE_GLOB_DOMAIN_URL=http://jeecg-boot-system:8080/jeecg-boot
+```
+
+- 编译项目
+
+```bash
 yarn install
 
 yarn build
-
 ```
-
-- host设置
-
-```bash
-{改成具体IP} jeecg-boot-system
-```
-> 127.0.0.1不行，得设置具体IP
-
 
 - 启动容器
 ```bash
@@ -105,7 +117,32 @@ docker build -t jeecgboot-vue3 .
 docker run --name jeecgboot-vue3-nginx -p 80:80 -d jeecgboot-vue3
 ```
 
+- 访问前台
 
+http://localhost
+
+## Docker镜像启动前端(微服务模式)
+> 这里只写与单体的区别步骤
+
+-  区别1. 修改后台域名
+.env.production
+
+```bash
+VITE_GLOB_API_URL=/jeecgboot
+VITE_GLOB_DOMAIN_URL=http://jeecg-boot-gateway:9999
+```
+- 区别2. 修改Dockerfile文件
+
+```bash
+- 把`http://jeecg-boot-system:8080/jeecg-boot`替换成 `http://jeecg-boot-gateway:9999`
+- 把`jeecg-boot-system`替换成 `jeecg-boot-gateway`
+```
+
+-  其他与单体模式一样
+
+```bash
+镜像需要重现构建，最好把单体的镜像删掉，重新构建docker镜像。
+```
 
 
 ## 功能模块
