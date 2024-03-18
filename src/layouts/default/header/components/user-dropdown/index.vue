@@ -10,21 +10,21 @@
     </span>
 
     <template #overlay>
-      <Menu @click="handleMenuClick">
-        <MenuItem key="doc" :text="t('layout.header.dropdownItemDoc')" icon="ion:document-text-outline" v-if="getShowDoc" />
-        <MenuDivider v-if="getShowDoc" />
-        <MenuItem key="account" :text="t('layout.header.dropdownItemSwitchAccount')" icon="ant-design:setting-outlined" />
-        <MenuItem key="password" :text="t('layout.header.dropdownItemSwitchPassword')" icon="ant-design:edit-outlined" />
-        <MenuItem key="depart" :text="t('layout.header.dropdownItemSwitchDepart')" icon="ant-design:cluster-outlined" />
-        <MenuItem key="cache" :text="t('layout.header.dropdownItemRefreshCache')" icon="ion:sync-outline" />
-        <!-- <MenuItem
-            v-if="getUseLockPage"
-            key="lock"
-            :text="t('layout.header.tooltipLock')"
-            icon="ion:lock-closed-outline"
-        />-->
-        <MenuItem key="logout" :text="t('layout.header.dropdownItemLoginOut')" icon="ion:power-outline" />
-      </Menu>
+<!--      <Menu @click="handleMenuClick">-->
+<!--        <MenuItem key="doc" :text="t('layout.header.dropdownItemDoc')" icon="ion:document-text-outline" v-if="getShowDoc" />-->
+<!--        <MenuDivider v-if="getShowDoc" />-->
+<!--&lt;!&ndash;        <MenuItem key="account" :text="t('layout.header.dropdownItemSwitchAccount')" icon="ant-design:setting-outlined" />&ndash;&gt;-->
+<!--&lt;!&ndash;        <MenuItem key="password" :text="t('layout.header.dropdownItemSwitchPassword')" icon="ant-design:edit-outlined" />&ndash;&gt;-->
+<!--&lt;!&ndash;        <MenuItem key="depart" :text="t('layout.header.dropdownItemSwitchDepart')" icon="ant-design:cluster-outlined" />&ndash;&gt;-->
+<!--&lt;!&ndash;        <MenuItem key="cache" :text="t('layout.header.dropdownItemRefreshCache')" icon="ion:sync-outline" />&ndash;&gt;-->
+<!--        &lt;!&ndash; <MenuItem-->
+<!--            v-if="getUseLockPage"-->
+<!--            key="lock"-->
+<!--            :text="t('layout.header.tooltipLock')"-->
+<!--            icon="ion:lock-closed-outline"-->
+<!--        />&ndash;&gt;-->
+<!--        <MenuItem key="logout" :text="t('layout.header.dropdownItemLoginOut')" icon="ion:power-outline" />-->
+<!--      </Menu>-->
     </template>
   </Dropdown>
   <LockAction v-if="lockActionVisible" ref="lockActionRef" @register="register" />

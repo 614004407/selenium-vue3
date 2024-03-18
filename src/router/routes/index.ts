@@ -32,8 +32,8 @@ export const LoginRoute: AppRouteRecordRaw = {
   path: '/login',
   name: 'Login',
   //新版后台登录，如果想要使用旧版登录放开即可
-  // component: () => import('/@/views/sys/login/Login.vue'),
-  component: () => import('/@/views/system/loginmini/MiniLogin.vue'),
+  component: () => import('/@/views/sys/login/Login.vue'),
+  // component: () => import('/@/views/system/loginmini/MiniLogin.vue'),
   meta: {
     title: t('routes.basic.login'),
   },

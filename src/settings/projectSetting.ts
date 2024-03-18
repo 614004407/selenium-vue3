@@ -19,7 +19,7 @@ const setting: ProjectConfig = {
   showSettingButton: true,
 
   // 是否显示主题切换按钮
-  showDarkModeToggle: true,
+  showDarkModeToggle: false,
 
   // 设置按钮位置 可选项
   // SettingButtonPositionEnum.AUTO: 自动选择
@@ -73,13 +73,13 @@ const setting: ProjectConfig = {
     // 主题
     theme: ThemeEnum.LIGHT,
     // 开启锁屏功能
-    useLockPage: true,
+    useLockPage: false,
     // 显示全屏按钮
-    showFullScreen: true,
+    showFullScreen: false,
     // 显示文档按钮
-    showDoc: true,
+    showDoc: false,
     // 显示消息中心按钮
-    showNotice: true,
+    showNotice: false,
     // 显示菜单搜索按钮
     showSearch: true,
   },
@@ -87,7 +87,7 @@ const setting: ProjectConfig = {
   // 菜单配置
   menuSetting: {
     // 背景色
-    bgColor: SIDE_BAR_BG_COLOR_LIST[0],
+    bgColor: SIDE_BAR_BG_COLOR_LIST[11],
     // 是否固定住左侧菜单
     fixed: true,
     // 菜单折叠
@@ -102,11 +102,11 @@ const setting: ProjectConfig = {
     // Whether to show dom
     hidden: false,
     // 菜单宽度
-    menuWidth: 210,
+    menuWidth: 260,
     // 菜单模式
     mode: MenuModeEnum.INLINE,
     // 菜单类型
-    type: MenuTypeEnum.SIDEBAR,
+    type: MenuTypeEnum.MIX,
     // 菜单主题
     theme: ThemeEnum.DARK,
     // 分割菜单
@@ -114,7 +114,7 @@ const setting: ProjectConfig = {
     // 顶部菜单布局
     topMenuAlign: 'center',
     // 折叠触发器的位置
-    trigger: TriggerEnum.HEADER,
+    trigger: TriggerEnum.FOOTER,
     // 手风琴模式，只展示一个菜单
     accordion: true,
     // 在路由切换的时候关闭左侧混合菜单展开菜单
@@ -128,7 +128,7 @@ const setting: ProjectConfig = {
   // 多标签
   multiTabsSetting: {
     // 刷新后是否保留已经打开的标签页
-    cache: false,
+    cache: true,
     // 开启
     show: true,
     // 是否可以拖拽
@@ -136,11 +136,11 @@ const setting: ProjectConfig = {
     // 开启快速操作
     showQuick: true,
     // 是否显示刷新按钮
-    showRedo: true,
+    showRedo: false,
     // 是否显示折叠按钮
-    showFold: true,
+    showFold: false,
     // 标签页样式
-    theme: TabsThemeEnum.CARD,
+    theme: TabsThemeEnum.SIMPLE,
   },
 
   // 动画配置

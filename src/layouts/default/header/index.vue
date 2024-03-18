@@ -11,7 +11,7 @@
       />
       <LayoutBreadcrumb v-if="getShowContent && getShowBread" :theme="getHeaderTheme" />
       <!-- 欢迎语 -->
-      <span v-if="getShowContent && getShowBreadTitle && !getIsMobile" :class="[prefixCls, `${prefixCls}--${getHeaderTheme}`,'headerIntroductionClass']"> 欢迎进入 {{ title }} </span>
+<!--      <span v-if="getShowContent && getShowBreadTitle && !getIsMobile" :class="[prefixCls, `${prefixCls}&#45;&#45;${getHeaderTheme}`,'headerIntroductionClass']"> 欢迎进入 {{ title }} </span>-->
     </div>
     <!-- left end -->
 
@@ -23,7 +23,7 @@
 
     <!-- action  -->
     <div :class="`${prefixCls}-action`">
-      <AppSearch :class="`${prefixCls}-action__item `" v-if="getShowSearch" />
+<!--      <AppSearch :class="`${prefixCls}-action__item `" v-if="getShowSearch" />-->
 
       <ErrorAction v-if="getUseErrorHandle" :class="`${prefixCls}-action__item error-action`" />
 
@@ -36,8 +36,10 @@
       <AppLocalePicker v-if="getShowLocalePicker" :reload="true" :showText="false" :class="`${prefixCls}-action__item`" />
 
       <UserDropDown :theme="getHeaderTheme" />
-
-      <SettingDrawer v-if="getShowSetting" :class="`${prefixCls}-action__item`" />
+      <div style="position: absolute; right: 27px;cursor:pointer" @click="handleLoginOut()">
+        <img src="../../../assets/images/quit.png"/>
+      </div>
+<!--      <SettingDrawer v-if="getShowSetting" :class="`${prefixCls}-action__item`" />-->
     </div>
   </Header>
   <LoginSelect ref="loginSelectRef" @success="loginSelectOk"></LoginSelect>
@@ -164,6 +166,12 @@
        */
       const loginSelectRef = ref();
 
+      //  login out
+      function handleLoginOut() {
+        userStore.confirmLoginOut();
+      }
+
+
       function showLoginSelect() {
         //update-begin---author:liusq  Date:20220101  for：判断登录进来是否需要弹窗选择租户----
         //判断是否是登陆进来
@@ -208,7 +216,8 @@
         getUseLockPage,
         loginSelectOk,
         loginSelectRef,
-        title
+        title,
+        handleLoginOut
       };
     },
   });
