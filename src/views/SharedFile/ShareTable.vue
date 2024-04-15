@@ -65,6 +65,9 @@
                 <a-menu-item>
                   <a @click="RepaymenteditModel(record)">修改</a>
                 </a-menu-item>
+                <a-menu-item>
+                  <a @click="DeleteModel(record)">删除</a>
+                </a-menu-item>
               </a-menu>
             </template>
           </a-dropdown>
@@ -78,8 +81,30 @@
                 <a-menu-item>
                   <a @click="DetailsModel(record)">详情</a>
                 </a-menu-item>
+<!--                <a-menu-item>-->
+<!--                  <a @click="editModel(record)">修改</a>-->
+<!--                </a-menu-item>-->
                 <a-menu-item>
-                  <a @click="editModel(record)">修改</a>
+                  <a @click="DeleteModel(record)">删除</a>
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+          <a-dropdown v-if="column.dataIndex === 'BatchDetails'">
+            <a class="ant-dropdown-link" @click.prevent>
+              更多
+              <DownOutlined style="font-size: 9px;width: 10px"/>
+            </a>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item>
+                  <a @click="DetailsModel(record)">详情</a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a @click="editModel(record,column.dataIndex)">修改</a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a @click="DeleteModel(record)">删除</a>
                 </a-menu-item>
               </a-menu>
             </template>
@@ -94,19 +119,19 @@
                 <a-menu-item>
                   <a @click="BorrowerModel(record)">详情</a>
                 </a-menu-item>
-                <a-menu-item v-if="record.YCLZT==='需要预处理'">
+                <a-menu-item v-if="record.batchProcessState==='1'">
                   <a @click="Preconditioning('info',record)">预处理</a>
                 </a-menu-item>
-                <a-menu-item v-if="record.YCLZT==='预处理错误'">
+                <a-menu-item v-if="record.batchProcessState==='3'">
                   <a @click="Precondresult(record)">预处理日志</a>
                 </a-menu-item>
-                <a-menu-item v-if="record.SJCLZT==='未处理'">
+                <a-menu-item v-if="record.batchTreatmentState==='0'">
                   <a @click="DataProcessing('info',record)">数据处理</a>
                 </a-menu-item>
-                <a-menu-item v-if="record.SJCLZT==='数据处理出错'">
+                <a-menu-item v-if="record.batchTreatmentState==='2'">
                   <a @click="DataProcesresult(record)">数据处理日志</a>
                 </a-menu-item>
-                <a-menu-item>
+                <a-menu-item v-if="record.batchTreatmentState==='1'">
                   <a @click="Borrower(record)">借款人明细</a>
                 </a-menu-item>
               </a-menu>
@@ -116,11 +141,8 @@
       </BasicTable>
     </a-spin>
   </div>
-  <div class="modalcss">
-    <component :is="currentModal" v-model:visible="modalVisible" :userData="refundData" @addData="addData" @closeModal="close" :disabled="disabled" :title="title" :showOkBtn="showOkBtn" :TypeShow="props.TypeShow"/>
-    <DetailsM @register="register"/>
-    <Adddata @register="register"/>
-    <BorrowerDetails @register="register"/>
+  <div class="modalcss" v-if="modalVisible">
+    <component :is="currentModal" v-model:visible="modalVisible" :userData="refundData" @addData="addData" @editData="editData" @closeModal="close" :disabled="disabled" :title="title" :showOkBtn="showOkBtn" :TypeShow="props.TypeShow"/>
   </div>
 </template>
 
@@ -135,6 +157,8 @@ import BorrowerDetails from "/@/views/selenium/BorrowerDetails.vue";
 import {DescItem} from "/@/components/Description";
 import { DownOutlined } from '@ant-design/icons-vue';
 import { useMessage } from "@/hooks/web/useMessage";
+import { Modal } from "ant-design-vue";
+import { getProjectDelete } from "@/api/selenium/project";
 
 //控制弹窗参数
 const currentModal = shallowRef<Nullable<ComponentOptions>>(null);
@@ -164,7 +188,7 @@ let selectionData = []
 let Form = ref<boolean>(true)
 let BasicData = ref([])
 let ulLoading = ref<boolean>(true)
-let emit = defineEmits(['queryFunction','ExcelFun','add'])
+let emit = defineEmits(['queryFunction','ExcelFun','add','edit','delete'])
 let current = ref(1)
 let fromdata = {}
 let message = ref('')
@@ -210,6 +234,14 @@ function onExcel(){
 
 function addData(v){
   emit("add", v)
+}
+
+function editData(v){
+  emit("edit", v)
+}
+
+async function DeleteModel(v){
+  emit("delete", v)
 }
 
 function close(){
@@ -270,17 +302,34 @@ function DataProcesresult(data){
 }
 
 function BorrowerModel(v) {
+  console.log(v);
   refundData.data = [v]
   let DescItem: DescItem[] = []
   columns.forEach(item => {
     if (item.title != '操作') {
-      let a = {
-        field: item.dataIndex,
-        label: item.title,
-        labelStyle: {
-          "text-align": "right"
+      let a = {}
+      if(item.customRender) {
+        a = {
+          field: item.dataIndex,
+          label: item.title,
+          labelStyle: {
+            "text-align": "right"
+          },
+          render: (curVal, data) => {
+            let text2 = curVal
+            return item.customRender({text: text2})
+          }
+        }
+      }else{
+        a = {
+          field: item.dataIndex,
+          label: item.title,
+          labelStyle: {
+            "text-align": "right"
+          },
         }
       }
+
       DescItem.push(a)
     }
   })
@@ -303,7 +352,7 @@ function handleCreate() {
     modalVisible.value = true;
   });
 }
-function editModel(v){
+function editModel(v,type){
   title.value = '修改'
   showOkBtn.value = true
   disabled.value = false
@@ -364,7 +413,7 @@ watch(() => props.ChemicalsData, () => {
     BasicData.value = props.ChemicalsData.data
     form.value = props.ChemicalsData.form
     if(props.ChemicalsData.data){
-      message.value = '共' + BasicData.value.length + '条数据'
+      message.value = '共' + props.totalnum + '条数据'
     }
     schemas = props.ChemicalsData.schemas
     columns = props.ChemicalsData.columns
@@ -376,6 +425,10 @@ watch(() => props.ChemicalsData, () => {
     ulLoading.value = false
   }
 }, {immediate: true, deep: true,});
+
+defineExpose({
+  close
+})
 </script>
 
 <style scoped lang="less">

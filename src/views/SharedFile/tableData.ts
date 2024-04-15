@@ -67,7 +67,7 @@ export function transDate(format, date) {
 export function SetProjectSchema(): FormSchema[] {
   return [
     {
-      field: 'XMMC',
+      field: 'projectName',
       component: 'Input',
       label: '项目名称',
       colProps: {
@@ -81,7 +81,7 @@ export function SetProjectSchema(): FormSchema[] {
       },
     },
     {
-      field: 'XMLY',
+      field: 'projectSource',
       component: 'Input',
       label: '项目来源',
       colProps: {
@@ -89,7 +89,7 @@ export function SetProjectSchema(): FormSchema[] {
       },
     },
     {
-      field: 'WJLX',
+      field: 'fileType',
       component: 'Select',
       label: '文件夹类型',
       colProps: {
@@ -117,7 +117,7 @@ export function SetProjectSchema(): FormSchema[] {
 export function SetProjectForm(): FormSchema[] {
   return [
     {
-      field: 'XMMC',
+      field: 'projectName',
       component: 'Input',
       label: '项目名称',
       required: true,
@@ -132,7 +132,7 @@ export function SetProjectForm(): FormSchema[] {
       },
     },
     {
-      field: 'XMLY',
+      field: 'projectSource',
       component: 'Input',
       label: '项目来源',
       required: true,
@@ -141,7 +141,7 @@ export function SetProjectForm(): FormSchema[] {
       },
     },
     {
-      field: 'WJJLX',
+      field: 'fileType',
       component: 'Select',
       label: '文件夹类型',
       required: true,
@@ -165,7 +165,7 @@ export function SetProjectForm(): FormSchema[] {
       }
     },
     {
-      field: 'XMGML',
+      field: 'projectCatalogue',
       component: 'Input',
       label: '项目根目录',
       required: true,
@@ -173,10 +173,10 @@ export function SetProjectForm(): FormSchema[] {
         span: 12,
       },
       componentProps: ({formModel}) => {
-        if (formModel.XMMC) {
-          formModel.XMGML = "d:\\data\\" + formModel.XMMC
+        if (formModel.projectName) {
+          formModel.projectCatalogue = "d:\\data\\" + formModel.projectName
         } else {
-          formModel.XMGML = ''
+          formModel.projectCatalogue = ''
         }
         return {
           disabled:true
@@ -184,7 +184,7 @@ export function SetProjectForm(): FormSchema[] {
       },
     },
     {
-      field: 'XMMS',
+      field: 'projectDescription',
       component: 'InputTextArea',
       label: '项目描述',
       required: true,
@@ -203,27 +203,27 @@ export function SetProjectColumns(): BasicColumn[] {
   return [
     {
       title: '项目名称',
-      dataIndex: 'XMMC',
+      dataIndex: 'projectName',
       width: 200,
     },
     {
       title: '项目来源',
       width: 150,
-      dataIndex: 'XMLY',
+      dataIndex: 'projectSource',
     },
     {
       title: '文件夹类型',
-      dataIndex: 'WJJLX',
+      dataIndex: 'fileType',
       width: 150,
     },
     {
       title: '项目根目录',
-      dataIndex: 'XMGML',
+      dataIndex: 'projectCatalogue',
       width: 150,
     },
     {
       title: '项目描述',
-      dataIndex: 'XMMS',
+      dataIndex: 'projectDescription',
       width: 150,
     },
     {
@@ -257,7 +257,7 @@ export const SetProData = [
 export function BuildBatchSchema(): FormSchema[] {
   return [
     {
-      field: 'PCMC',
+      field: 'batchName',
       component: 'Input',
       label: '批次名称',
       colProps: {
@@ -271,31 +271,26 @@ export function BuildBatchSchema(): FormSchema[] {
       },
     },
     {
-      field: 'XMMC',
-      component: 'Select',
+      field: 'projectId',
+      component: 'Input',
       label: '项目名称',
       colProps: {
         span: 6,
       },
-      componentProps: ({formModel}) => {
-        return {
-          placeholder: '请选择项目名称',
-          options: [
-            // {
-            //   label: '女',
-            //   value: '0',
-            // },
-          ],
-        }
-      }
+      componentProps: {
+        placeholder: '请输入项目名称',
+        onChange: (e) => {
+          console.log(e);
+        },
+      },
     },
   ];
 }
 
-export function BuildBatchForm(): FormSchema[] {
+export function BuildBatchForm(ProjectDictionary): FormSchema[] {
   return [
     {
-      field: 'PCMC',
+      field: 'batchName',
       component: 'Input',
       label: '批次名称',
       required: true,
@@ -310,7 +305,7 @@ export function BuildBatchForm(): FormSchema[] {
       },
     },
     {
-      field: 'XMMC',
+      field: 'projectId',
       component: 'Select',
       label: '项目名称',
       required: true,
@@ -320,21 +315,12 @@ export function BuildBatchForm(): FormSchema[] {
       componentProps: ({formModel}) => {
         return {
           placeholder: '请选择项目名称',
-          options: [
-            {
-              label: '项目名称1',
-              value: '项目名称1',
-            },
-            {
-              label: '项目名称2',
-              value: '项目名称2',
-            },
-          ],
+          options: ProjectDictionary.value
         }
       }
     },
     {
-      field: 'SJB',
+      field: 'batchTable',
       component: 'JUpload',
       label: '数据表上传',
       required: true,
@@ -343,14 +329,14 @@ export function BuildBatchForm(): FormSchema[] {
       },
       componentProps: ({formModel}) => {
         return {
-          text: '数据表上传',
+          text: '请上传数据表',
           maxCount: 1,
           download: true,
         }
       },
     },
     {
-      field: 'HKJHB',
+      field: 'batchRefund',
       component: 'JUpload',
       label: '还款计划表上传',
       required: true,
@@ -359,30 +345,36 @@ export function BuildBatchForm(): FormSchema[] {
       },
       componentProps: ({formModel}) => {
         return {
-          text: '还款计划表上传',
+          text: '请上传还款计划表',
           maxCount: 1,
           download: true,
         }
       },
     },
     {
-      field: 'WJSC',
+      field: 'batchCompress',
       component: 'JUpload',
       label: '批次文件上传',
       required: true,
+      colProps: {
+        span: 12,
+      },
       componentProps: ({formModel}) => {
         return {
-          text: '批次文件上传',
-          maxCount: 1,
+          text: '请上传批次文件',
+          maxCount: 0,
           download: true,
         }
       },
     },
     {
-      field: 'PCSL',
+      field: 'batchNum',
       component: 'InputNumber',
       label: '批次数量',
       required: true,
+      colProps: {
+        span: 12,
+      },
       componentProps: ({formModel}) => {
         return {
           placeholder: '',
@@ -398,38 +390,38 @@ export function BuildBatchColumns(): BasicColumn[] {
   return [
     {
       title: '批次名称',
-      dataIndex: 'PCMC',
+      dataIndex: 'batchName',
       width: 200,
     },
     {
       title: '项目名称',
       width: 150,
-      dataIndex: 'XMMC',
+      dataIndex: 'projectName',
     },
     {
       title: '数据表',
-      dataIndex: 'SJB',
+      dataIndex: 'batchTable',
       width: 150,
     },
     {
       title: '还款计划表',
-      dataIndex: 'HKJHB',
+      dataIndex: 'batchRefund',
       width: 150,
     },
     {
       title: '打包压缩文件',
-      dataIndex: 'DBYSWJ',
+      dataIndex: 'batchCompress',
       width: 150,
     },
     {
       title: '批次数量',
-      dataIndex: 'PCSL',
+      dataIndex: 'batchNum',
       width: 150,
     },
     {
       title: '操作',
       width: 150,
-      dataIndex: 'Details',
+      dataIndex: 'BatchDetails',
       fixed: 'right',
     },
   ];
@@ -457,38 +449,37 @@ export const BuildBatchData = [
 export function BatchQuerySchema(): FormSchema[] {
   return [
     {
-      field: 'PCBH',
+      field: 'batchName',
       component: 'Input',
-      label: '批次编号',
+      label: '批次名称',
       colProps: {
         span: 6,
       },
       componentProps: {
-        placeholder: '请输入批次编号',
+        placeholder: '请输入批次名称',
         onChange: (e) => {
           console.log(e);
         },
       },
     },
     {
-      field: 'XMMC',
+      field: 'projectName',
       component: 'Input',
       label: '项目名称',
       colProps: {
         span: 6,
       },
       componentProps: {
-        placeholder: '请输入批次编号',
+        placeholder: '请输入项目名称',
         onChange: (e) => {
           console.log(e);
         },
       },
     },
     {
-      field: 'YCLZT',
+      field: 'batchProcessState',
       component: 'Select',
       label: '预处理状态',
-      required: true,
       colProps: {
         span: 6,
       },
@@ -498,29 +489,28 @@ export function BatchQuerySchema(): FormSchema[] {
           options: [
             {
               label: '需要预处理',
-              value: '需要预处理',
+              value: '1',
             },
             {
               label: '不需要预处理',
-              value: '不需要预处理',
+              value: '0',
             },
             {
               label: '预处理错误',
-              value: '预处理错误',
+              value: '3',
             },
             {
               label: '预处理成功',
-              value: '预处理成功',
+              value: '2',
             },
           ],
         }
       }
     },
     {
-      field: 'SJCLZT',
+      field: 'batchTreatmentState',
       component: 'Select',
       label: '数据处理状态',
-      required: true,
       colProps: {
         span: 6,
       },
@@ -530,15 +520,15 @@ export function BatchQuerySchema(): FormSchema[] {
           options: [
             {
               label: '未处理',
-              value: '未处理',
+              value: '0',
             },
             {
               label: '数据处理出错',
-              value: '数据处理出错',
+              value: '2',
             },
             {
               label: '数据处理成功',
-              value: '数据处理成功',
+              value: '1',
             },
           ],
         }
@@ -550,34 +540,67 @@ export function BatchQuerySchema(): FormSchema[] {
 export function BatchQueryColumns(): BasicColumn[] {
   return [
     {
-      title: '批次编号',
-      dataIndex: 'PCBH',
+      title: '批次名称',
+      dataIndex: 'batchName',
       width: 200,
     },
     {
       title: '项目名称',
       width: 150,
-      dataIndex: 'XMMC',
+      dataIndex: 'projectName',
     },
     {
       title: '上传日期',
-      dataIndex: 'SCRQ',
+      dataIndex: 'batchDatatime',
       width: 150,
     },
     {
       title: '数据表',
-      dataIndex: 'SJB',
+      dataIndex: 'batchTable',
       width: 150,
     },
     {
       title: '预处理状态',
-      dataIndex: 'YCLZT',
+      dataIndex: 'batchProcessState',
       width: 150,
+      customRender: ({ text, record }) => {
+        let name = ''
+        switch (text){
+          case '0' :
+            name = '不需要预处理'
+            break;
+          case '1' :
+            name = '需要预处理'
+            break;
+          case '2' :
+            name = '预处理成功'
+            break;
+          case '3' :
+            name = '预处理失败'
+            break;
+        }
+        return name
+      }
     },
     {
       title: '数据处理状态',
-      dataIndex: 'SJCLZT',
+      dataIndex: 'batchTreatmentState',
       width: 150,
+      customRender: ({ text, record }) => {
+        let name = ''
+        switch (text){
+          case '0' :
+            name = '未处理'
+            break;
+          case '1' :
+            name = '数据处理成功'
+            break;
+          case '2' :
+            name = '数据处理失败'
+            break;
+        }
+        return name
+      }
     },
     {
       title: '操作',
@@ -758,12 +781,13 @@ export const BorrowerDetailsData = [
   },
 ]
 
-export function RepaymentForm(): FormSchema[] {
+export function RepaymentForm(BatchInfo): FormSchema[] {
   return [
     {
-      field: 'HKJHBM',
+      field: 'repaymentName',
       component: 'Input',
-      label: '配置名称',
+      label: '还款计划表配置名称',
+      labelWidth:130,
       colProps: {
         span: 12,
       },
@@ -775,46 +799,47 @@ export function RepaymentForm(): FormSchema[] {
       },
     },
     {
-      field: 'XMMC',
-      component: 'Input',
-      label: '项目名称',
+      field: 'batchId',
+      component: 'Select',
+      label: '批次名称',
       colProps: {
         span: 12,
       },
-      componentProps: {
-        placeholder: '请输入项目名称',
-        onChange: (e) => {
-          console.log(e);
-        },
-      },
+      componentProps: ({formModel}) => {
+        return {
+          placeholder: '请选择批次名称',
+          options: BatchInfo.value
+        }
+      }
     },
   ];
 }
 export function RepaymentSchema(): FormSchema[] {
   return [
     {
-      field: 'HKJHBM',
+      field: 'repaymentName',
       component: 'Input',
-      label: '配置名称',
+      label: '还款计划表配置名称',
+      labelWidth:130,
       colProps: {
         span: 6,
       },
       componentProps: {
-        placeholder: '请输入配置名称',
+        placeholder: '请输入还款计划表配置名称',
         onChange: (e) => {
           console.log(e);
         },
       },
     },
     {
-      field: 'XMMC',
+      field: 'batchName',
       component: 'Input',
-      label: '项目名称',
+      label: '批次名称',
       colProps: {
         span: 6,
       },
       componentProps: {
-        placeholder: '请输入项目名称',
+        placeholder: '请输入批次名称',
         onChange: (e) => {
           console.log(e);
         },
@@ -827,18 +852,18 @@ export function RepaymentColumns(): BasicColumn[] {
   return [
     {
       title: '还款计划表配置名称',
-      dataIndex: 'HKJHBM',
+      dataIndex: 'repaymentName',
       width: 200,
     },
     {
       title: '项目名称',
-      dataIndex: 'XMMC',
+      dataIndex: 'batchName',
       width: 200,
     },
     {
       title: '创建日期',
       width: 150,
-      dataIndex: 'CJRQ',
+      dataIndex: 'createTime',
     },
     {
       title: '操作',
@@ -858,14 +883,15 @@ export const RepaymentData = [
   },
 ]
 
-export function ConfigurForm(): FormSchema[] {
+export function ConfigurForm(BatchInfo): FormSchema[] {
   return [
     {
-      field: 'SJBM',
+      field: 'datasheetName',
       component: 'Input',
-      label: '配置名称',
+      label: '数据表配置名称',
       colProps: {
         span: 12,
+
       },
       componentProps: {
         placeholder: '请输入配置名称',
@@ -875,25 +901,25 @@ export function ConfigurForm(): FormSchema[] {
       },
     },
     {
-      field: 'XMMC',
-      component: 'Input',
-      label: '项目名称',
+      field: 'batchId',
+      component: 'Select',
+      label: '批次名称',
       colProps: {
         span: 12,
       },
-      componentProps: {
-        placeholder: '请输入项目名称',
-        onChange: (e) => {
-          console.log(e);
-        },
-      },
+      componentProps: ({formModel}) => {
+        return {
+          placeholder: '请选择批次名称',
+          options: BatchInfo.value
+        }
+      }
     },
   ];
 }
 export function ConfigurSchema(): FormSchema[] {
   return [
     {
-      field: 'SJBM',
+      field: 'datasheetName',
       component: 'Input',
       label: '配置名称查询',
       colProps: {
@@ -907,9 +933,9 @@ export function ConfigurSchema(): FormSchema[] {
       },
     },
     {
-      field: 'XMMC',
+      field: 'batchName',
       component: 'Input',
-      label: '项目名称',
+      label: '批次名称',
       colProps: {
         span: 6,
       },
@@ -927,18 +953,18 @@ export function ConfigurColumns(): BasicColumn[] {
   return [
     {
       title: '数据表配置名称',
-      dataIndex: 'SJBM',
+      dataIndex: 'datasheetName',
       width: 200,
     },
     {
-      title: '项目名称',
-      dataIndex: 'XMMC',
+      title: '批次名称',
+      dataIndex: 'batchName',
       width: 200,
     },
     {
       title: '创建日期',
       width: 150,
-      dataIndex: 'CJRQ',
+      dataIndex: 'createTime',
     },
     {
       title: '操作',
@@ -1033,7 +1059,7 @@ export function FileTypeSchema(): FormSchema[] {
 export function FileTypeColumns(): BasicColumn[] {
   return [
     {
-      title: '项目名称',
+      title: '批次名称',
       dataIndex: 'XMMC',
       width: 200,
     },
@@ -1050,7 +1076,7 @@ export function FileTypeColumns(): BasicColumn[] {
     {
       title: '操作',
       width: 150,
-      dataIndex: 'Details',
+      dataIndex: 'Repayment',
       fixed: 'right',
     },
   ];

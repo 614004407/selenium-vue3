@@ -1,46 +1,52 @@
 <template>
-  <BasicModal :maskClosable="false" :canFullscreen="false" destroyOnClose :title="title" width="1200px" :okText="'保存'" :cancelText="'取消'" @ok="addData" @cancel="closeModal" :showOkBtn="showOkBtn">
+  <BasicModal :maskClosable="false" :canFullscreen="false" destroyOnClose :title="props.title" width="1200px" :okText="'保存'" :cancelText="'取消'" @ok="addData" @cancel="closeModal" :showOkBtn="showOkBtn">
     <div style="max-height: 600px;">
-      <BasicForm @register="registerForm" @submit="addData" :disabled="disabled"></BasicForm>
+      <BasicForm @register="registerForm" @submit="addData" :disabled="disabled || ((props.TypeShow === 2||props.TypeShow === 1) && props.title == '修改')"></BasicForm>
       <a-tabs defaultActiveKey="1" v-if="props.TypeShow === 1">
         <a-tab-pane tab="字段信息配置" key="1">
           <div>
             <a-form ref="formRef" :model="FormData" :label-col="labelCol" :wrapper-col="wrapperCol">
               <a-row type="flex" style="margin-bottom: 10px" :gutter="16">
-                <a-col :span="7">字段名</a-col>
-                <a-col :span="7">字段类型</a-col>
-                <a-col :span="7">字段长度</a-col>
-                <a-col :span="2">操作</a-col>
+                <a-col :span="6">字段名</a-col>
+                <a-col :span="6">字段类型</a-col>
+                <a-col :span="6">字段备注</a-col>
+                <a-col :span="3">字段长度</a-col>
+                <a-col :span="2" v-if="!disabled">操作</a-col>
               </a-row>
-              <a-row type="flex" style="margin-bottom: 10px" :gutter="24" v-for="(item, index) in FormData.RepaymentList"
+              <a-row type="flex" style="margin-bottom: 10px" :gutter="24" v-for="(item, index) in FormData.loitSeleniumDisposition"
                      :key="index">
-                <a-col :span="7">
+                <a-col :span="6">
                   <a-form-item>
-                    <a-input placeholder="字段名" v-model:value="item.ZDM" :disabled="disabled"/>
+                    <a-input placeholder="字段名" v-model:value="item.dispositionName" :disabled="disabled"/>
                   </a-form-item>
                 </a-col>
-                <a-col :span="7">
+                <a-col :span="6">
                   <a-form-item>
-                    <a-select placeholder="字段类型" v-model:value="item.ZDLX" :disabled="disabled">
+                    <a-select placeholder="字段类型" v-model:value="item.dispositionType" :disabled="disabled">
                       <a-select-option value="varchar">字符类型</a-select-option>
-                      <a-select-option value="date">日期类型</a-select-option>
+                      <a-select-option value="datatime">日期类型</a-select-option>
                       <a-select-option value="int">数字类型</a-select-option>
                     </a-select>
                   </a-form-item>
                 </a-col>
-                <a-col :span="7">
+                <a-col :span="6">
                   <a-form-item>
-                    <a-input-number :step="1" placeholder="字段长度" v-model:value="item.ZDCD" :disabled="disabled"/>
+                    <a-input placeholder="字段备注" v-model:value="item.dispositionRemark" :disabled="disabled"/>
                   </a-form-item>
                 </a-col>
-                <a-col :span="2">
+                <a-col :span="3">
+                  <a-form-item>
+                    <a-input-number :step="1" placeholder="字段长度" v-model:value="item.dispositionLength" :disabled="disabled"/>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="2" v-if="!disabled">
                   <a-form-item>
 <!--                    <Icon icon="ant-design:minus-outlined" @click="delRowCustom(index)" style="fontsize: 20px" />-->
-                    <a @click="delRowCustom(index,'RepaymentList')">删除</a>
+                    <a @click="delRowCustom(index,'loitSeleniumDisposition')">删除</a>
                   </a-form-item>
                 </a-col>
               </a-row>
-              <a-button type="dashed" style="width: 98%; margin-top: 10px" @click="addRowCustom('RepaymentList')">
+              <a-button type="dashed" style="width: 98%; margin-top: 10px" @click="addRowCustom('loitSeleniumDisposition')" v-if="!disabled">
                 <Icon icon="ph:plus-bold" />
                 添加字段信息
               </a-button>
@@ -53,40 +59,46 @@
           <div>
             <a-form ref="formRef1" :model="FormData" :label-col="labelCol" :wrapper-col="wrapperCol">
               <a-row type="flex" style="margin-bottom: 10px" :gutter="16">
-                <a-col :span="7">字段名</a-col>
-                <a-col :span="7">字段类型</a-col>
-                <a-col :span="7">字段长度</a-col>
-                <a-col :span="2">操作</a-col>
+                <a-col :span="6">字段名</a-col>
+                <a-col :span="6">字段类型</a-col>
+                <a-col :span="6">字段备注</a-col>
+                <a-col :span="3">字段长度</a-col>
+                <a-col :span="2" v-if="!disabled">操作</a-col>
               </a-row>
-              <a-row type="flex" style="margin-bottom: 10px" :gutter="24" v-for="(item, index) in FormData.ConfigurList"
+              <a-row type="flex" style="margin-bottom: 10px" :gutter="24" v-for="(item, index) in FormData.loitSeleniumDisposition"
                      :key="index">
-                <a-col :span="7">
+                <a-col :span="6">
                   <a-form-item>
-                    <a-input placeholder="字段名" v-model:value="item.ZDM" :disabled="disabled"/>
+                    <a-input placeholder="字段名" v-model:value="item.dispositionName" :disabled="disabled"/>
                   </a-form-item>
                 </a-col>
-                <a-col :span="7">
+                <a-col :span="6">
                   <a-form-item>
-                    <a-select placeholder="字段类型" v-model:value="item.ZDLX" :disabled="disabled">
-                      <a-select-option value="字符类型">字符类型</a-select-option>
-                      <a-select-option value="日期类型">日期类型</a-select-option>
-                      <a-select-option value="数字类型">数字类型</a-select-option>
+                    <a-select placeholder="字段类型"  v-model:value="item.dispositionType" :disabled="disabled">
+                      <a-select-option value="varchar">字符类型</a-select-option>
+                      <a-select-option value="datatime">日期类型</a-select-option>
+                      <a-select-option value="int">数字类型</a-select-option>
                     </a-select>
                   </a-form-item>
                 </a-col>
-                <a-col :span="7">
+                <a-col :span="6">
                   <a-form-item>
-                    <a-input-number :step="1" placeholder="字段长度" v-model:value="item.ZDCD" :disabled="disabled"/>
+                    <a-input placeholder="字段备注" v-model:value="item.dispositionRemark" :disabled="disabled"/>
                   </a-form-item>
                 </a-col>
-                <a-col :span="2">
+                <a-col :span="3">
+                  <a-form-item>
+                    <a-input-number :step="1" placeholder="字段长度" :min="0" :controls="false" v-model:value="item.dispositionLength" :disabled="disabled"/>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="2" v-if="!disabled">
                   <a-form-item>
                     <!--                    <Icon icon="ant-design:minus-outlined" @click="delRowCustom(index)" style="fontsize: 20px" />-->
-                    <a @click="delRowCustom(index,'ConfigurList')">删除</a>
+                    <a @click="delRowCustom(index,'loitSeleniumDisposition')">删除</a>
                   </a-form-item>
                 </a-col>
               </a-row>
-              <a-button type="dashed" style="width: 98%; margin-top: 10px" @click="addRowCustom('ConfigurList')">
+              <a-button type="dashed" style="width: 98%; margin-top: 10px" @click="addRowCustom('loitSeleniumDisposition')" v-if="!disabled">
                 <Icon icon="ph:plus-bold" />
                 添加字段信息
               </a-button>
@@ -103,7 +115,7 @@
                 <a-col :span="5">文件存放方式</a-col>
                 <a-col :span="5">源文件夹命名方式</a-col>
                 <a-col :span="5">源文件命名方式</a-col>
-                <a-col :span="2">操作</a-col>
+                <a-col :span="2" v-if="!disabled">操作</a-col>
               </a-row>
               <a-row type="flex" style="margin-bottom: 10px" :gutter="24" v-for="(item, index) in FormData.ConfigurList"
                      :key="index">
@@ -166,14 +178,14 @@
                         </a-select>
                   </a-form-item>
                 </a-col>
-                <a-col :span="2">
+                <a-col :span="2" v-if="!disabled">
                   <a-form-item>
                     <!--                    <Icon icon="ant-design:minus-outlined" @click="delRowCustom(index)" style="fontsize: 20px" />-->
                     <a @click="delRowCustom(index,'ConfigurList')">删除</a>
                   </a-form-item>
                 </a-col>
               </a-row>
-              <a-button type="dashed" style="width: 98%; margin-top: 10px" @click="addRowCustom('ConfigurList')">
+              <a-button type="dashed" style="width: 98%; margin-top: 10px" @click="addRowCustom('ConfigurList')" v-if="!disabled">
                 <Icon icon="ph:plus-bold" />
                 添加字段信息
               </a-button>
@@ -187,7 +199,7 @@
 <script lang="ts" setup>
 import BasicModal from "/@/components/Modal/src/BasicModal.vue";
 import { BasicForm, useForm } from "/@/components/Form";
-import { onMounted, reactive, ref, watch } from "vue";
+import { onMounted, reactive, ref, unref, watch } from "vue";
 import { BasicColumn, BasicTable, useTable } from "/@/components/Table";
 import { useModalInner } from "@/components/Modal";
 
@@ -201,7 +213,7 @@ const wrapperCol = reactive({
 });
 const formRef = ref();
 let schemas = ref([]);
-let emit = defineEmits(["addData", "closeModal"]);
+let emit = defineEmits(["addData", "closeModal","editData"]);
 //获取父页面传递的数据
 const props = defineProps({
   userData: { type: Object },
@@ -234,19 +246,31 @@ const [registerForm, { validate, setProps, setFieldsValue }] = useForm({
 });
 let formdata = ref({});
 const FormData = reactive({
-  RepaymentList: [],
+  loitSeleniumDisposition: [],
   ConfigurList:[]
 });
 
 async function addData() {
   let a = await validate();
-  console.log(a);
-  emit("addData", a);
+  if(props.TypeShow === 2 || props.TypeShow === 1){
+    FormData.loitSeleniumDisposition.forEach((item,i)=>{
+      FormData.loitSeleniumDisposition[i].dispositionSerial = i
+    })
+    a.loitSeleniumDisposition = FormData.loitSeleniumDisposition
+  }else if(props.TypeShow === 3){
+    a.ConfigurList = FormData.ConfigurList
+  }
+  if(props.title == '添加'){
+    emit("addData", a);
+  }else {
+    a.id = formdata.value.id
+    emit("editData", a);
+  }
 }
 
 function closeModal() {
-  FormData.RepaymentList = []
   FormData.ConfigurList = []
+  FormData.loitSeleniumDisposition = []
   emit("closeModal");
 }
 
@@ -258,7 +282,11 @@ async function setData() {
 
 //动态添加行
 function addRowCustom(v) {
-  FormData[v].push({});
+  if(props.TypeShow === 2 || props.TypeShow === 1) {
+    FormData[v].push({dispositionType:"varchar"});
+  }else if(props.TypeShow === 3) {
+    FormData[v].push({});
+  }
 }
 
 //删除行
@@ -270,10 +298,15 @@ watch(() => props.userData, () => {
   if (props.userData) {
     schemas.value = props.userData.schema;
     formdata.value = props.userData.formdata;
-    if (formdata) {
+    if (unref(props.userData.formdata)) {
+      if((props.TypeShow === 2 || props.TypeShow === 1) && formdata.value.loitSeleniumDisposition){
+        FormData.loitSeleniumDisposition = formdata.value.loitSeleniumDisposition
+      }else if(props.TypeShow === 3 && formdata.value.ConfigurList){
+        FormData.ConfigurList = formdata.value.ConfigurList
+      }
       setTimeout(() => {
         setFieldsValue(formdata.value);
-      }, 1500);
+      }, 200);
     }
   }
 }, { immediate: true, deep: true });

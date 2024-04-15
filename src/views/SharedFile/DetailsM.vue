@@ -1,5 +1,5 @@
 <template>
-  <BasicModal :canFullscreen="false" destroyOnClose title="详情" width="800px" :centered="true" :showOkBtn="false" cancelText="关闭">
+  <BasicModal title="详情" :canFullscreen="false" destroyOnClose width="800px" :centered="true" :showOkBtn="false" cancelText="关闭">
     <div style="max-height: 600px;">
       <Description
         :column="1"
@@ -22,6 +22,7 @@ const props = defineProps({
 })
 
 watch(() => props.userData, () => {
+  console.log(123123123123);
 }, {immediate: true, deep: true,});
 
 </script>
