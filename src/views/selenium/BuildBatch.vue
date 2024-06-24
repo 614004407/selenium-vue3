@@ -1,5 +1,5 @@
 <template>
-  <ShareTable ref="childmod" :ChemicalsData="ChemicalsData" :totalnum="totalnum" @queryFunction="queryFunction" @add="addInformation" @edit="editInformation" @delete="deleteInformation"></ShareTable>
+  <ShareTable ref="childmod" :ChemicalsData="ChemicalsData" :totalnum="totalnum" @queryFunction="queryFunction" @add="addInformation" @edit="editInformation" @delete="deleteInformation" :upload="true"></ShareTable>
 </template>
 
 <script lang="ts" setup>
@@ -21,16 +21,20 @@ import {
 } from "@/api/selenium/project";
 import { message, Modal } from "ant-design-vue";
 import { getBatchAdd, getBatchDelete, getBatchEdit, getBatchList } from "@/api/selenium/batch";
+import { getEnterpriseEnterpriselist } from "@/api/selenium/Enterprise";
 
 const childmod = ref(null)
 let area = ref([])
 let totalnum = ref(0)
 let ProjectDictionary = ref([])
+let Enterpriselist = ref([])
+let Enterpriselist1 = ref([])
+let Enterpriselist2 = ref([])
 //表格参数
 let ChemicalsData = reactive({
-  schemas:BuildBatchSchema(),
-  columns:BuildBatchColumns(),
-  form:BuildBatchForm(ProjectDictionary),
+  schemas:BuildBatchSchema(Enterpriselist,Enterpriselist1,Enterpriselist2),
+  columns:BuildBatchColumns(Enterpriselist),
+  form:BuildBatchForm(ProjectDictionary,Enterpriselist,Enterpriselist1,Enterpriselist2),
   data:[]
 })
 //查询条件
@@ -38,12 +42,24 @@ let queryList = {
   pageNo:1,
   pageSize:10,
   batchName:'',
-  projectId:'',
+  projectName:'',
+  prosecutionMode:'',
+  enterpriseId:'',
 }
 onMounted( () => {
+  getEnterpriselist()
   getProjectlist()
   queryTable()
 });
+
+async function getEnterpriselist(){
+  let res = await getEnterpriseEnterpriselist({})
+  Enterpriselist.value = res.result
+  let res1 = await getEnterpriseEnterpriselist({stats:'1'})
+  Enterpriselist1.value = res1.result
+  let res2 = await getEnterpriseEnterpriselist({stats:'2'})
+  Enterpriselist2.value = res2.result
+}
 
 async function getProjectlist(){
   let res = await getProjectDictionary({})
@@ -52,7 +68,9 @@ async function getProjectlist(){
 
 function queryFunction(v){
   queryList.batchName = v.batchName
-  queryList.projectId = v.projectId
+  queryList.projectName = v.projectName
+  queryList.prosecutionMode = v.prosecutionMode
+  queryList.enterpriseId = v.enterpriseId
   queryList.pageNo = v.current
   queryList.pageSize = v.pageSize
   queryTable()
@@ -69,6 +87,7 @@ async function queryTable(){
 
 async function addInformation(v){
   console.log(v);
+  v.batchCompress = 'batchCompress'
   let res = await getBatchAdd(v)
   if(res.success){
     childmod.value.close()
@@ -80,7 +99,6 @@ async function addInformation(v){
 }
 
 async function editInformation(v){
-  console.log(v)
   let res = await getBatchEdit(v)
   if(res.success){
     childmod.value.close()

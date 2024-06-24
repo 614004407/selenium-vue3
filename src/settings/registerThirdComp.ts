@@ -1,6 +1,8 @@
 import type { App } from 'vue';
 import { registerJVxeTable } from '/@/components/jeecg/JVxeTable';
 import { registerJVxeCustom } from '/@/components/JVxeCustom';
+import PdfView from "/@/views/SharedFile/File.vue"
+
 
 // 注册全局聊天表情包
 import { Picker } from 'emoji-mart-vue-fast/src';
@@ -27,4 +29,5 @@ export async function registerThirdComp(app: App) {
   app.config.globalProperties.$dayjs = dayjs
   app.provide('$dayjs', dayjs)
   //---------------------------------------------------------------------
+  app.component('PdfView', PdfView)
 }

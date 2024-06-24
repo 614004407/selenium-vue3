@@ -1,36 +1,34 @@
 <template>
-  <ShareTable ref="childmod" :ChemicalsData="ChemicalsData" :totalnum="totalnum" @queryFunction="queryFunction" @add="addInformation" @edit="editInformation" @delete="deleteInformation"  :TypeShow="1"></ShareTable>
+  <ShareTable ref="childmod" :ChemicalsData="ChemicalsData" :totalnum="totalnum" @queryFunction="queryFunction" @add="addInformation" @edit="editInformation" @delete="deleteInformation"></ShareTable>
 </template>
 
 <script lang="ts" setup>
 import ShareTable from '/@/views/SharedFile/ShareTable.vue'
 import {onMounted, reactive, ref} from "vue";
 import {
-  RepaymentForm,
-  RepaymentSchema,
-  RepaymentColumns,
-  RepaymentData, removeProperty
+  EnterpriseForm, EnterpriseSchema, EnterpriseColumns, removeProperty
 } from "@/views/SharedFile/tableData";
 import { getBatchRepaymentInfo } from "@/api/selenium/batch";
-import { getDatasheetAdd, getDatasheetDelete, getDatasheetEdit, getDatasheetList } from "@/api/selenium/datasheet";
 import { message, Modal } from "ant-design-vue";
-import { getRepaymentAdd, getRepaymentDelete, getRepaymentEdit, getRepaymentList } from "@/api/selenium/repayment";
+import { getEnterpriseAdd, getEnterpriseDelete, getEnterpriseEdit, getEnterpriseList } from "@/api/selenium/Enterprise";
 
 const childmod = ref(null)
 let BatchInfo = ref([])
 let totalnum = ref(0)
 //表格参数
 let ChemicalsData = reactive({
-  schemas:RepaymentSchema(),
-  columns:RepaymentColumns(),
-  form:RepaymentForm(BatchInfo),
+  schemas:EnterpriseSchema(),
+  columns:EnterpriseColumns(),
+  form:EnterpriseForm(),
   data:[]
 })
 //查询条件
 let queryList = {
-  batchName:'',
-  repaymentName:'',
-  repaymentSqlname:'',
+  enterpriseName:'',
+  enterpriseCode:'',
+  enterpriseRepname:'',
+  bankName:'',
+  enterpriseStats:'',
   pageNo:0,
   pageSize:10,
 }
@@ -45,9 +43,11 @@ async function getBatchinfo(){
 }
 
 function queryFunction(v){
-  queryList.batchName = v.batchName
-  queryList.repaymentName = v.repaymentName
-  queryList.repaymentSqlname = v.repaymentSqlname
+  queryList.enterpriseName = v.enterpriseName
+  queryList.enterpriseCode = v.enterpriseCode
+  queryList.enterpriseRepname = v.enterpriseRepname
+  queryList.bankName = v.bankName
+  queryList.enterpriseStats = v.enterpriseStats
   queryList.pageNo = v.current
   queryList.pageSize = v.pageSize
   queryTable()
@@ -57,14 +57,14 @@ function queryFunction(v){
 async function queryTable(){
   queryList.pageNo = 1
   let a  = removeProperty(queryList)
-  let res = await getRepaymentList(a)
+  let res = await getEnterpriseList(a)
   ChemicalsData.data = res.result.records
   totalnum.value = res.result.total
 }
 
 async function addInformation(v){
   console.log(v);
-  let res = await getRepaymentAdd(v)
+  let res = await getEnterpriseAdd(v)
   if(res.success){
     childmod.value.close()
     message.success(res.result);
@@ -75,8 +75,7 @@ async function addInformation(v){
 }
 
 async function editInformation(v){
-  console.log(v)
-  let res = await getRepaymentEdit(v)
+  let res = await getEnterpriseEdit(v)
   if(res.success){
     childmod.value.close()
     message.success(res.result);
@@ -93,7 +92,7 @@ async function deleteInformation(v) {
     okText: '确认',
     cancelText: '取消',
     onOk: async () => {
-      let res = await getRepaymentDelete({id:v.id})
+      let res = await getEnterpriseDelete({id:v.id})
       if(res.success){
         message.success('删除成功！');
         queryTable()

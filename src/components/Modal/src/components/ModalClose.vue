@@ -1,5 +1,5 @@
 <template>
-  <div :class="getClass">
+  <div :class="getClass" style="">
     <template v-if="fullScreenStatus">
       <Tooltip :title="t('component.modal.restore')" placement="bottom" v-if="fullScreen">
         <FullscreenExitOutlined role="full" @click="handleFullScreen" />

@@ -1,4 +1,5 @@
 <template>
+  <a-spin :spinning="spinning" :tip="tip">
   <div class="formbox" v-if="Form">
     <BasicForm
       :labelWidth="100"
@@ -6,9 +7,7 @@
       :actionColOptions="{ span: 6 }"
       @submit="handleSubmit"
       :submitOnReset="true"
-      :showAdvancedButton="true"
-      :alwaysShowLines="2"
-      :autoAdvancedCol="2"
+      :showAdvancedButton="false"
       :resetButtonOptions="{style:{backgroundColor:'#1890ff',color:'#ffffff',border:'1px solid #1890ff'}}"
     />
   </div>
@@ -31,7 +30,7 @@
         </template>
       </template>
     </a-alert>
-    <a-alert :message="message" type="info" show-icon class="alert" v-if="!props.ExcelBut"/>
+    <a-alert :message="Message" type="info" show-icon class="alert" v-if="!props.ExcelBut"/>
   </div>
   <div class="tableBox">
     <a-spin :spinning="ulLoading">
@@ -59,6 +58,47 @@
             </a>
             <template #overlay>
               <a-menu>
+                <a-menu-item>
+                  <a @click="RepaymentModel(record)">详情</a>
+                </a-menu-item>
+                <a-menu-item v-if="record.datasheetState === '0' || record.repaymentState === '0'">
+                  <a @click="RepaymenteditModel(record)">修改</a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a @click="DeleteModel(record)">删除</a>
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+          <a-dropdown v-if="column.dataIndex === 'Enterprise'">
+            <a class="ant-dropdown-link" @click.prevent>
+              更多
+              <DownOutlined style="font-size: 9px;width: 10px"/>
+            </a>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item>
+                  <a @click="RepaymentModel(record)">详情</a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a @click="RepaymenteditModel(record)">修改</a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a @click="DeleteModel(record)">删除</a>
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+          <a-dropdown v-if="column.dataIndex === 'Allocation'">
+            <a class="ant-dropdown-link" @click.prevent>
+              更多
+              <DownOutlined style="font-size: 9px;width: 10px"/>
+            </a>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item>
+                  <a @click="getzipDownload(record)">导出</a>
+                </a-menu-item>
                 <a-menu-item>
                   <a @click="RepaymentModel(record)">详情</a>
                 </a-menu-item>
@@ -119,11 +159,8 @@
                 <a-menu-item>
                   <a @click="BorrowerModel(record)">详情</a>
                 </a-menu-item>
-                <a-menu-item v-if="record.batchProcessState==='1'">
+                <a-menu-item v-if="record.batchProcessState==='1' && record.batchTreatmentState==='1'">
                   <a @click="Preconditioning('info',record)">预处理</a>
-                </a-menu-item>
-                <a-menu-item v-if="record.batchProcessState==='3'">
-                  <a @click="Precondresult(record)">预处理日志</a>
                 </a-menu-item>
                 <a-menu-item v-if="record.batchTreatmentState==='0'">
                   <a @click="DataProcessing('info',record)">数据处理</a>
@@ -131,7 +168,10 @@
                 <a-menu-item v-if="record.batchTreatmentState==='2'">
                   <a @click="DataProcesresult(record)">数据处理日志</a>
                 </a-menu-item>
-                <a-menu-item v-if="record.batchTreatmentState==='1'">
+                <a-menu-item v-if="record.batchTreatmentState==='3'">
+                  <a @click="Tabledisposition(record)">借款人明细表配置</a>
+                </a-menu-item>
+                <a-menu-item v-if="(record.batchProcessState==='0' && record.batchTreatmentState==='1')||(record.batchProcessState==='2' && record.batchTreatmentState==='1')">
                   <a @click="Borrower(record)">借款人明细</a>
                 </a-menu-item>
               </a-menu>
@@ -142,8 +182,9 @@
     </a-spin>
   </div>
   <div class="modalcss" v-if="modalVisible">
-    <component :is="currentModal" v-model:visible="modalVisible" :userData="refundData" @addData="addData" @editData="editData" @closeModal="close" :disabled="disabled" :title="title" :showOkBtn="showOkBtn" :TypeShow="props.TypeShow"/>
+    <component :is="currentModal" v-model:visible="modalVisible" :userData="refundData" :upload="props.upload" @addData="addData" @editData="editData" @closeModal="close" :disabled="disabled" :title="title" :showOkBtn="showOkBtn" :TypeShow="props.TypeShow"/>
   </div>
+  </a-spin>
 </template>
 
 <script lang="ts" setup>
@@ -157,8 +198,12 @@ import BorrowerDetails from "/@/views/selenium/BorrowerDetails.vue";
 import {DescItem} from "/@/components/Description";
 import { DownOutlined } from '@ant-design/icons-vue';
 import { useMessage } from "@/hooks/web/useMessage";
-import { Modal } from "ant-design-vue";
+import { message, Modal } from "ant-design-vue";
 import { getProjectDelete } from "@/api/selenium/project";
+import { getBatchProcessing } from "@/api/selenium/batch";
+import { getHandleFile } from "@/api/selenium/loitSeleniumBatch";
+import { getzipdownload } from "@/api/selenium/Allocation";
+import { RepaymentSchema, UnfileSchema } from "@/views/SharedFile/tableData";
 
 //控制弹窗参数
 const currentModal = shallowRef<Nullable<ComponentOptions>>(null);
@@ -178,20 +223,26 @@ const props = defineProps({
   TypeShow:{
     type: Number,
     default: 0,
+  },
+  upload:{
+    type:Boolean,
+    default:false,
   }
 })
 const [registerTable, {setPagination, reload}] = useTable({});
 
+let spinning = ref<boolean>(false)
+let tip = ref('')
 let columns = []
 let schemas = []
 let selectionData = []
 let Form = ref<boolean>(true)
 let BasicData = ref([])
 let ulLoading = ref<boolean>(true)
-let emit = defineEmits(['queryFunction','ExcelFun','add','edit','delete'])
+let emit = defineEmits(['queryFunction','ExcelFun','add','edit','delete','resetFun'])
 let current = ref(1)
 let fromdata = {}
-let message = ref('')
+let Message = ref('')
 let selectedRowKeys = ref([])
 let form = ref([])
 let Sizedata = reactive({
@@ -204,7 +255,8 @@ let queryList = {}
 let refundData = reactive({
   data: [],
   schema: [],
-  formdata:{}
+  formdata:{},
+  id:'',
 })
 let title = ref('添加')
 let showOkBtn = ref<boolean>(true)
@@ -230,6 +282,13 @@ function handleSubmit(values) {
 
 function onExcel(){
   console.log('导出');
+}
+
+async function getzipDownload(v){
+  let res = await getzipdownload({id:v.id})
+  let url = res.result.replace(new RegExp("C:/不良资产处置", "g"), "");
+  window.open("http://139.9.215.117:8091/selenium/sys/common/static" + url);
+
 }
 
 function addData(v){
@@ -259,9 +318,26 @@ function queryFUN() {
   emit("queryFunction", a)
 }
 
-function Borrower(){
+function Tabledisposition(v){
+  title.value = '处理配置'
+  showOkBtn.value = true
+  disabled.value = false
+  refundData.formdata = v
+  let loitSeleniumDisposition = []
+  v.loitSeleniumDisposition.forEach(item=>{
+    loitSeleniumDisposition.push({value:item.dispositionRemark,label:item.dispositionRemark})
+  })
+  refundData.schema = UnfileSchema(loitSeleniumDisposition)
+  currentModal.value = Adddata;
+  nextTick(() => {
+    modalVisible.value = true;
+  });
+}
+
+function Borrower(v){
   title.value = '借款人明细'
   currentModal.value = BorrowerDetails;
+  refundData.id = v.id
   nextTick(() => {
     modalVisible.value = true;
   });
@@ -276,8 +352,17 @@ function Preconditioning(type: 'warning' | 'error' | 'success' | 'info',data) {
   });
 }
 
-function Precond(data){
-  console.log('执行预处理',data);
+async function Precond(data){
+  spinning.value = true
+  tip.value = '预处理中...'
+  let res = await getHandleFile({id:data.id})
+  if(res.success){
+    emit("resetFun")
+    message.success('预处理成功！')
+  }else{
+    message.warning(res.message)
+  }
+  spinning.value = false
 }
 
 function Precondresult(data){
@@ -293,8 +378,17 @@ function DataProcessing(type: 'warning' | 'error' | 'success' | 'info',data) {
   });
 }
 
-function DataProces(data){
-  console.log('执行数据处理',data);
+async function DataProces(data){
+  spinning.value = true
+  tip.value = '数据处理中...'
+  let res = await getBatchProcessing({id:data.id})
+  if(res.success){
+    emit("resetFun")
+    message.success(res.message);
+  }else{
+    message.warning(res.result);
+  }
+  spinning.value = false
 }
 
 function DataProcesresult(data){
@@ -329,7 +423,6 @@ function BorrowerModel(v) {
           },
         }
       }
-
       DescItem.push(a)
     }
   })
@@ -413,7 +506,7 @@ watch(() => props.ChemicalsData, () => {
     BasicData.value = props.ChemicalsData.data
     form.value = props.ChemicalsData.form
     if(props.ChemicalsData.data){
-      message.value = '共' + props.totalnum + '条数据'
+      Message.value = '共' + props.totalnum + '条数据'
     }
     schemas = props.ChemicalsData.schemas
     columns = props.ChemicalsData.columns
@@ -439,24 +532,6 @@ defineExpose({
   :deep(.ant-picker){
     width: 100%;
   }
-}
-
-.imgdaochu {
-  color: #fff;
-  height: 20px;
-  width: 20px;
-  align-items: center;
-  background-size: contain;
-  background-image: url(/@/assets/icons/daochu.png);
-}
-
-.imgdaoru {
-  color: #fff;
-  height: 20px;
-  width: 20px;
-  align-items: center;
-  background-size: contain;
-  background-image: url(/@/assets/icons/daoru.png);
 }
 
 .tableBox {

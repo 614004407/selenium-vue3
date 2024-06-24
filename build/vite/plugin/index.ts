@@ -15,6 +15,7 @@ import { configStyleImportPlugin } from './styleImport';
 import { configVisualizerConfig } from './visualizer';
 import { configThemePlugin } from './theme';
 import { configSvgIconsPlugin } from './svgSprite';
+import topLevelAwait from 'vite-plugin-top-level-await'
 // //预编译加载插件(不支持vite3作废)
 // import OptimizationPersist from 'vite-plugin-optimize-persist';
 // import PkgConfig from 'vite-plugin-package-config';
@@ -33,6 +34,10 @@ export function createVitePlugins(viteEnv: ViteEnv, isBuild: boolean) {
     VitePluginCertificate({
       source: 'coding',
     }),
+    topLevelAwait({
+      promiseExportName: '__tla',
+      promiseImportName: (i) => `__tla_${i}`
+    })
   ];
 
   vitePlugins.push(UnoCSS({ presets: [presetUno(), presetTypography()] }));
@@ -65,7 +70,6 @@ export function createVitePlugins(viteEnv: ViteEnv, isBuild: boolean) {
     vitePlugins.push(configCompressPlugin(VITE_BUILD_COMPRESS, VITE_BUILD_COMPRESS_DELETE_ORIGIN_FILE));
 
   }
-
   // //vite-plugin-theme【预编译加载插件，解决vite首次打开界面加载慢问题】
   // vitePlugins.push(PkgConfig());
   // vitePlugins.push(OptimizationPersist());

@@ -6,6 +6,7 @@
 import ShareTable from '/@/views/SharedFile/ShareTable.vue'
 import {onMounted, reactive, ref} from "vue";
 import {
+  loitSeleniumRepaymentData,
   removeProperty,
   SetProData,
   SetProjectColumns,
@@ -14,15 +15,19 @@ import {
 } from "@/views/SharedFile/tableData";
 import { getProjectAdd, getProjectDelete, getProjectEdit, getProjectList } from "@/api/selenium/project";
 import { message, Modal } from "ant-design-vue";
+import { getEnterpriseEnterpriselist } from "@/api/selenium/Enterprise";
+import { getZipDictionary } from "@/api/selenium/Allocation";
 
 const childmod = ref(null)
 let area = ref([])
 let totalnum = ref(0)
+let Enterpriselist = ref([])
+let ZipDictionary = ref([])
 //表格参数
 let ChemicalsData = reactive({
-  schemas:SetProjectSchema(),
-  columns:SetProjectColumns(),
-  form:SetProjectForm(),
+  schemas:SetProjectSchema(Enterpriselist),
+  columns:SetProjectColumns(Enterpriselist),
+  form:SetProjectForm(Enterpriselist,ZipDictionary),
   data:[],
 })
 //查询条件
@@ -30,12 +35,30 @@ let queryList = {
   projectName:'',
   projectSource:'',
   fileType:'',
+  platformName:'',
+  operatorName:'',
+  isGuarantee:'',
+  guaranteeName:'',
+  enterpriseId:'',
   pageNo:1,
   pageSize:10,
 }
 onMounted( () => {
+  getEnterpriselist()
+  getzipDictionary()
   queryTable()
 });
+
+async function getzipDictionary(){
+  let res = await getZipDictionary({})
+  ZipDictionary.value = res.result
+}
+
+async function getEnterpriselist(){
+  let res = await getEnterpriseEnterpriselist({})
+  Enterpriselist.value = res.result
+  console.log(Enterpriselist.value);
+}
 
 //获取列表数据
 async function queryTable(){
@@ -47,7 +70,6 @@ async function queryTable(){
 }
 
 async function addInformation(v){
-  console.log(v);
   let res = await getProjectAdd(v)
   if(res.success){
     childmod.value.close()
@@ -91,6 +113,11 @@ async function deleteInformation(v) {
 function queryFunction(v){
   queryList.projectName = v.projectName
   queryList.projectSource = v.projectSource
+  queryList.platformName = v.platformName
+  queryList.operatorName = v.operatorName
+  queryList.isGuarantee = v.isGuarantee
+  queryList.guaranteeName = v.guaranteeName
+  queryList.enterpriseId = v.enterpriseId
   queryList.fileType = v.fileType
   queryList.pageNo = v.current
   queryList.pageSize = v.pageSize

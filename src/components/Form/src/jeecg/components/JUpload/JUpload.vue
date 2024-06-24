@@ -69,6 +69,7 @@
     disabled: propTypes.bool.def(false),
     // 替换前一个文件，用于超出最大数量依然允许上传
     replaceLastOne: propTypes.bool.def(false),
+    data:propTypes.object.def({})
   });
 
   const headers = getHeaders();
@@ -96,6 +97,7 @@
   });
   // 合并 props 和 attrs
   const bindProps = computed(() => {
+    console.log(props.data);
     //update-begin-author:liusq date:20220411 for: [issue/455]上传组件传入accept限制上传文件类型无效
     const bind: any = Object.assign({}, props, unref(attrs));
     //update-end-author:liusq date:20220411 for: [issue/455]上传组件传入accept限制上传文件类型无效
@@ -103,7 +105,7 @@
     bind.name = 'file';
     bind.listType = isImageMode.value ? 'picture-card' : 'text';
     bind.class = [bind.class, { 'upload-disabled': props.disabled }];
-    bind.data = { biz: props.bizPath, ...bind.data };
+    bind.data = {  ...bind.data,...props.data };
     //update-begin-author:taoyan date:20220407 for: 自定义beforeUpload return false，并不能中断上传过程
     if (!bind.beforeUpload) {
       bind.beforeUpload = onBeforeUpload;

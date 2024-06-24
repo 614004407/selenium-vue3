@@ -1,70 +1,49 @@
 <template>
-  <ShareTable ref="childmod" :ChemicalsData="ChemicalsData" :totalnum="totalnum" @queryFunction="queryFunction" @add="addInformation" @edit="editInformation" @delete="deleteInformation"  :TypeShow="1"></ShareTable>
+  <ShareTable ref="childmod" :ChemicalsData="ChemicalsData" :totalnum="totalnum" @queryFunction="queryFunction" @add="addInformation" @edit="editInformation" @delete="deleteInformation" :TypeShow="4"></ShareTable>
 </template>
 
 <script lang="ts" setup>
 import ShareTable from '/@/views/SharedFile/ShareTable.vue'
 import {onMounted, reactive, ref} from "vue";
 import {
-  RepaymentForm,
-  RepaymentSchema,
-  RepaymentColumns,
-  RepaymentData, removeProperty
+  removeProperty, SetAllocationColumns, SetAllocationForm, SetAllocationSchema,
 } from "@/views/SharedFile/tableData";
-import { getBatchRepaymentInfo } from "@/api/selenium/batch";
-import { getDatasheetAdd, getDatasheetDelete, getDatasheetEdit, getDatasheetList } from "@/api/selenium/datasheet";
 import { message, Modal } from "ant-design-vue";
-import { getRepaymentAdd, getRepaymentDelete, getRepaymentEdit, getRepaymentList } from "@/api/selenium/repayment";
+import { getEnterpriseEnterpriselist } from "@/api/selenium/Enterprise";
+import { getZipAdd, getZipDelete, getZipEdit, getZipList } from "@/api/selenium/Allocation";
 
 const childmod = ref(null)
-let BatchInfo = ref([])
+let area = ref([])
 let totalnum = ref(0)
+let Enterpriselist = ref([])
 //表格参数
 let ChemicalsData = reactive({
-  schemas:RepaymentSchema(),
-  columns:RepaymentColumns(),
-  form:RepaymentForm(BatchInfo),
-  data:[]
+  schemas:SetAllocationSchema(),
+  columns:SetAllocationColumns(),
+  form:SetAllocationForm(),
+  data:[],
 })
 //查询条件
 let queryList = {
-  batchName:'',
-  repaymentName:'',
-  repaymentSqlname:'',
-  pageNo:0,
+  zipName:'',
+  pageNo:1,
   pageSize:10,
 }
 onMounted( () => {
   queryTable()
-  getBatchinfo()
 });
-
-async function getBatchinfo(){
-  let res = await getBatchRepaymentInfo({})
-  BatchInfo.value = res.result
-}
-
-function queryFunction(v){
-  queryList.batchName = v.batchName
-  queryList.repaymentName = v.repaymentName
-  queryList.repaymentSqlname = v.repaymentSqlname
-  queryList.pageNo = v.current
-  queryList.pageSize = v.pageSize
-  queryTable()
-}
 
 //获取列表数据
 async function queryTable(){
   queryList.pageNo = 1
   let a  = removeProperty(queryList)
-  let res = await getRepaymentList(a)
+  let res = await getZipList(a)
   ChemicalsData.data = res.result.records
   totalnum.value = res.result.total
 }
 
 async function addInformation(v){
-  console.log(v);
-  let res = await getRepaymentAdd(v)
+  let res = await getZipAdd(v)
   if(res.success){
     childmod.value.close()
     message.success(res.result);
@@ -76,7 +55,7 @@ async function addInformation(v){
 
 async function editInformation(v){
   console.log(v)
-  let res = await getRepaymentEdit(v)
+  let res = await getZipEdit(v)
   if(res.success){
     childmod.value.close()
     message.success(res.result);
@@ -93,7 +72,7 @@ async function deleteInformation(v) {
     okText: '确认',
     cancelText: '取消',
     onOk: async () => {
-      let res = await getRepaymentDelete({id:v.id})
+      let res = await getZipDelete({id:v.id})
       if(res.success){
         message.success('删除成功！');
         queryTable()
@@ -102,6 +81,13 @@ async function deleteInformation(v) {
       }
     },
   });
+}
+
+function queryFunction(v){
+  queryList.zipName = v.zipName
+  queryList.pageNo = v.current
+  queryList.pageSize = v.pageSize
+  queryTable()
 }
 </script>
 

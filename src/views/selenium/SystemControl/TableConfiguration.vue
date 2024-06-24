@@ -8,7 +8,9 @@ import {onMounted, reactive, ref} from "vue";
 import {
   ConfigurForm, ConfigurColumns, ConfigurData, ConfigurSchema, removeProperty
 } from "@/views/SharedFile/tableData";
-import { getBatchAdd, getBatchDelete, getBatchEdit, getBatchInfo, getBatchList } from "@/api/selenium/batch";
+import {
+  getBatchDatasheetInfo,
+} from "@/api/selenium/batch";
 import { message, Modal } from "ant-design-vue";
 import { getDatasheetAdd, getDatasheetDelete, getDatasheetEdit, getDatasheetList } from "@/api/selenium/datasheet";
 
@@ -26,6 +28,7 @@ let ChemicalsData = reactive({
 let queryList = {
   datasheetName:'',
   batchName:'',
+  datasheetSqlname:'',
   pageNo:0,
   pageSize:10,
 }
@@ -35,13 +38,14 @@ onMounted( () => {
 });
 
 async function getBatchinfo(){
-  let res = await getBatchInfo({})
+  let res = await getBatchDatasheetInfo({})
   BatchInfo.value = res.result
 }
 
 function queryFunction(v){
   queryList.batchName = v.batchName
   queryList.datasheetName = v.datasheetName
+  queryList.datasheetSqlname = v.datasheetSqlname
   queryList.pageNo = v.current
   queryList.pageSize = v.pageSize
   queryTable()
@@ -57,12 +61,12 @@ async function queryTable(){
 }
 
 async function addInformation(v){
-  console.log(v);
   let res = await getDatasheetAdd(v)
   if(res.success){
     childmod.value.close()
     message.success(res.result);
     queryTable()
+    getBatchinfo()
   }else{
     message.error(res.result);
   }
@@ -75,6 +79,7 @@ async function editInformation(v){
     childmod.value.close()
     message.success(res.result);
     queryTable()
+    getBatchinfo()
   }else{
     message.error(res.result);
   }
@@ -91,6 +96,7 @@ async function deleteInformation(v) {
       if(res.success){
         message.success('删除成功！');
         queryTable()
+        getBatchinfo()
       }else{
         message.warning('删除失败！');
       }
