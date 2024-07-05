@@ -22,6 +22,7 @@ import {
 import { message, Modal } from "ant-design-vue";
 import { getBatchAdd, getBatchDelete, getBatchEdit, getBatchList } from "@/api/selenium/batch";
 import { getEnterpriseEnterpriselist } from "@/api/selenium/Enterprise";
+import { getContractlist } from "@/api/selenium/ContractAdd";
 
 const childmod = ref(null)
 let area = ref([])
@@ -30,11 +31,12 @@ let ProjectDictionary = ref([])
 let Enterpriselist = ref([])
 let Enterpriselist1 = ref([])
 let Enterpriselist2 = ref([])
+let Contractlist = ref([])
 //表格参数
 let ChemicalsData = reactive({
   schemas:BuildBatchSchema(Enterpriselist,Enterpriselist1,Enterpriselist2),
   columns:BuildBatchColumns(Enterpriselist),
-  form:BuildBatchForm(ProjectDictionary,Enterpriselist,Enterpriselist1,Enterpriselist2),
+  form:BuildBatchForm(ProjectDictionary,Enterpriselist,Enterpriselist1,Enterpriselist2,Contractlist),
   data:[]
 })
 //查询条件
@@ -49,6 +51,7 @@ let queryList = {
 onMounted( () => {
   getEnterpriselist()
   getProjectlist()
+  getcontractlist()
   queryTable()
 });
 
@@ -64,6 +67,11 @@ async function getEnterpriselist(){
 async function getProjectlist(){
   let res = await getProjectDictionary({})
   ProjectDictionary.value = res.result
+}
+
+async function getcontractlist(){
+  let res = await getContractlist({})
+  Contractlist.value = res.result
 }
 
 function queryFunction(v){

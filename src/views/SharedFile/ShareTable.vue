@@ -149,6 +149,25 @@
               </a-menu>
             </template>
           </a-dropdown>
+          <a-dropdown v-if="column.dataIndex === 'Contract'">
+            <a class="ant-dropdown-link" @click.prevent>
+              更多
+              <DownOutlined style="font-size: 9px;width: 10px"/>
+            </a>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item>
+                  <a @click="DetailsModel(record)">详情</a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a @click="editModel(record,column.dataIndex)">修改</a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a @click="DeleteModel(record)">删除</a>
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
           <a-dropdown v-if="column.dataIndex === 'QueryDetails'">
             <a class="ant-dropdown-link" @click.prevent>
               更多
@@ -304,6 +323,7 @@ async function DeleteModel(v){
 }
 
 function close(){
+  refundData.schema = []
   refundData.formdata = {}
   modalVisible.value = false;
 }

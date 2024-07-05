@@ -565,7 +565,7 @@ export function BuildBatchSchema(Enterpriselist,Enterpriselist1,Enterpriselist2)
   ];
 }
 
-export function BuildBatchForm(ProjectDictionary,Enterpriselist,Enterpriselist1,Enterpriselist2): FormSchema[] {
+export function BuildBatchForm(ProjectDictionary,Enterpriselist,Enterpriselist1,Enterpriselist2,Contractlist): FormSchema[] {
   let projectName = ref('')
   return [
     {
@@ -660,86 +660,19 @@ export function BuildBatchForm(ProjectDictionary,Enterpriselist,Enterpriselist1,
       }
     },
     {
-      field: 'loancontractName',
-      component: 'Input',
-      label: '贷款合同名称',
+      field: 'contractId',
+      component: 'Select',
+      label: '合同配置表',
       required: true,
-      colProps: {
-        span: 12,
-      },
-      componentProps: {
-        placeholder: '请输入贷款合同名称',
-        onChange: (e) => {
-          console.log(e);
-        },
-      },
-    },
-    {
-      field: 'guaranteecontractName',
-      component: 'Input',
-      label: '担保合同名称',
-      required: true,
-      colProps: {
-        span: 12,
-      },
-      componentProps: {
-        placeholder: '请输入担保合同名称',
-        onChange: (e) => {
-          console.log(e);
-        },
-      },
-    },
-    {
-      field: 'transferName',
-      component: 'Input',
-      label: '债权转让协议名称1',
-      required: true,
-      labelWidth:130,
-      colProps: {
-        span: 12,
-      },
-      componentProps: ({formModel}) =>  {
-        return {
-          placeholder: '担保公司与平台运营公司名称签署的协议名称',
-          onChange: (e) => {
-            console.log(e);
-          },
-        }
-      },
-    },
-    {
-      field: 'transferName1',
-      component: 'Input',
-      label: '债权转让协议名称2',
-      required: true,
-      labelWidth:130,
-      colProps: {
-        span: 12,
-      },
-      componentProps: ({formModel}) =>  {
-        return {
-          placeholder: '平台运营公司名称与原告签署的协议名称',
-          onChange: (e) => {
-            console.log(e);
-          },
-        }
-      },
-    },
-    {
-      field: 'transferTime',
-      component: 'DatePicker',
-      label: '债权转让签订时间',
-      required: true,
-      labelWidth:130,
       colProps: {
         span: 12,
       },
       componentProps: ({formModel}) => {
         return {
-          format:'YYYY-MM-DD',
-          valueFormat:'YYYY-MM-DD',
+          placeholder: '请选择合同配置表',
+          options: Contractlist.value,
         }
-      },
+      }
     },
     {
       field: 'batchNum',
@@ -1477,52 +1410,34 @@ export const RepaymentData = [
 export function ConfigurForm(BatchInfo): FormSchema[] {
   return [
     {
-      field: 'datasheetName',
+      field: 'contractName',
       component: 'Input',
-      label: '数据表配置名称',
+      label: '合同配置名称',
       required: true,
       colProps: {
         span: 12,
 
       },
-      componentProps: {
-        placeholder: '请输入配置名称',
-        onChange: (e) => {
-          console.log(e);
-        },
-      },
     },
     {
-      field: 'datasheetSqlname',
+      field: 'loancontractName',
       component: 'Input',
-      label: '数据库库表编码',
+      label: '贷款合同名称',
       required: true,
       colProps: {
         span: 12,
+
       },
-      componentProps: ({formModel}) => {
-        var dates = new Date();
-        var times = dates.getTime();
-        formModel.datasheetSqlname = 'datasheet'+times+JSON.stringify(Math.floor(Math.random() * 900 + 100))
-        return {
-          disabled:true
-        }
-      }
     },
     {
-      field: 'batchId',
-      component: 'Select',
-      label: '批次名称',
-      required: true,
+      field: 'guaranteecontractName',
+      component: 'Input',
+      label: '担保合同名称',
+      required: false,
       colProps: {
         span: 12,
+
       },
-      componentProps: ({formModel}) => {
-        return {
-          placeholder: '请选择批次名称',
-          options: BatchInfo.value
-        }
-      }
     },
   ];
 }
@@ -1820,6 +1735,13 @@ export const loitSeleniumData = [
     dispositionName:'Currentdebt',
     dispositionType:'decimal',
     dispositionRemark:'当前尚欠本金',
+    dispositionLength:'255',
+    isQuery:'2'
+  },
+  {
+    dispositionName:'compensation',
+    dispositionType:'decimal',
+    dispositionRemark:'代偿金额',
     dispositionLength:'255',
     isQuery:'2'
   },
@@ -2195,6 +2117,51 @@ export function UnfileSchema(loitSeleniumDisposition): FormSchema[] {
           options: loitSeleniumDisposition,
         }
       }
+    },
+  ];
+}
+
+export function ContractSchema(): FormSchema[] {
+  return [
+    {
+      field: 'contractName',
+      component: 'Input',
+      label: '配置名称查询',
+      colProps: {
+        span: 6,
+      },
+      componentProps: {
+        placeholder: '请输入数据表名',
+        onChange: (e) => {
+          console.log(e);
+        },
+      },
+    },
+  ];
+}
+
+export function ContractColumns(): BasicColumn[] {
+  return [
+    {
+      title: '合同配置名称',
+      dataIndex: 'contractName',
+      width: 200,
+    },
+    {
+      title: '贷款合同名称',
+      dataIndex: 'loancontractName',
+      width: 200,
+    },
+    {
+      title: '担保合同名称',
+      dataIndex: 'guaranteecontractName',
+      width: 200,
+    },
+    {
+      title: '操作',
+      width: 150,
+      dataIndex: 'Contract',
+      fixed: 'right',
     },
   ];
 }

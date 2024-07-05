@@ -78,8 +78,8 @@ async function queryTable(){
       }else if(item.dispositionType == 'datetime'){
         ChemicalsData.form.push({
           field: item.dispositionName,
-          required: item.dispositionName.indexOf('value') == -1 ? true : false,
-          component: 'RangePicker',
+          required: item.dispositionName.indexOf('value') == -1 && item.dispositionName != "compensatoryTime2"  ? true : false,
+          component: 'DatePicker',
           label: item.dispositionRemark,
           labelWidth:250,
           colProps: {
@@ -88,6 +88,7 @@ async function queryTable(){
           componentProps: ({formModel}) => {
             return {
               showTime:true,
+              format:'YYYY-MM-DD HH:mm:ss',
               valueFormat:'YYYY-MM-DD HH:mm:ss',
             }
           }
@@ -314,20 +315,24 @@ async function queryFunction(){
   if(a.state && a.state == '2'){
     for(let key in Columnslist){
       if(!a[key] && key.indexOf("value") == -1){
-        if(Querysql2.length > 0){
-          Querysql2 += Columnslist[key] != 'datetime' ? ' or ' + key + " = ''" : ' or ' + key + " is null"
-        }else{
-          Querysql2 += Columnslist[key] != 'datetime' ? key + " = ''" : key + " is null"
+        if(key != "compensatoryTime2"){
+          if(Querysql2.length > 0){
+            Querysql2 += Columnslist[key] != 'datetime' ? ' or ' + key + " = '' or " + key + " is null" : ' or ' + key + " is null"
+          }else{
+            Querysql2 += Columnslist[key] != 'datetime' ? key + " = '' or " + key + " is null" : key + " is null"
+          }
         }
       }
     }
   }else if(a.state && a.state == '1'){
     for(let key in Columnslist){
       if(!a[key] && key.indexOf("value") == -1){
-        if(Querysql2.length > 0){
-          Querysql2 += Columnslist[key] != 'datetime' ? ' and ' + key + " != ''" : ' and ' + key + " is true"
-        }else{
-          Querysql2 += Columnslist[key] != 'datetime' ? key + " != ''" : key + " is true"
+        if(key != "compensatoryTime2") {
+          if (Querysql2.length > 0) {
+            Querysql2 += Columnslist[key] != 'datetime' ? ' and ' + key + " != ''" : ' and ' + key + " is true"
+          } else {
+            Querysql2 += Columnslist[key] != 'datetime' ? key + " != ''" : key + " is true"
+          }
         }
       }
     }

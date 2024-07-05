@@ -14,7 +14,8 @@
   </div>
   <div style="background: white;margin: 0px 10px;padding: 5px 5px 0 5px" v-if="props.ExcelBut">
     <a-button type="primary" preIcon="ant-design:export-outlined" @click="onExcel"> 导出</a-button>
-    <a-button type="primary" preIcon="ant-design:export-outlined" @click="isexport" style="margin-left: 15px"> 生成诉状</a-button>
+    <a-button type="primary" preIcon="ant-design:export-outlined" @click="isexport" style="margin-left: 15px"> 生成诉状
+    </a-button>
   </div>
   <div style="background: white;margin: 0px 10px;padding: 5px 5px 0 5px">
     <a-alert type="info" show-icon class="alert" v-if="props.ExcelBut">
@@ -26,12 +27,12 @@
           <a-divider type="vertical" />
           <a @click="onSelectChange([],[])">清空</a>
           <slot name="alertAfter" />
-          <span><br/>注：请在生成诉状之后再进行导出，导出之前通过"数据是否完整"的查询条件，确实数据必须项的完整性！</span>
+          <span><br />注：请在生成诉状之后再进行导出，导出之前通过"数据是否完整"的查询条件，确实数据必须项的完整性！</span>
         </template>
         <template v-else>
           <span v-if="alertlist != ''">{{ alertlist }}</span>
           <span v-else>未选中任何数据</span>
-          <span><br/>注：请在导出之前通过"数据是否完整"的查询条件，确实数据必须项的完整性！</span>
+          <span><br />注：请在导出之前通过"数据是否完整"的查询条件，确实数据必须项的完整性！</span>
         </template>
       </template>
     </a-alert>
@@ -102,15 +103,16 @@ import {
 import drawer from "@/views/demo/vextable/drawer.vue";
 import RepaymentTable from "/@/views/SharedFile/RepaymentTable.vue";
 import smart from "address-smart-parse";
-import docxtemplater from 'docxtemplater';
-import ImageModule from 'docxtemplater-image-module-free';
-import { saveAs } from 'file-saver';
+import docxtemplater from "docxtemplater";
+import ImageModule from "docxtemplater-image-module-free";
+import { saveAs } from "file-saver";
 import JSZipUtils from "pizzip/utils";
-import PizZip from 'pizzip';
+import PizZip from "pizzip";
 import { getNowFormatDate, isReturn } from "@/views/SharedFile/tableData";
 import { update } from "lodash-es";
 import { uploadFile } from "@/api/common/api";
 import { useMessage } from "@/hooks/web/useMessage";
+import { getTransfer } from "@/api/selenium/ContractAdd";
 
 //控制弹窗参数
 const currentModal = shallowRef<Nullable<ComponentOptions>>(null);
@@ -206,46 +208,67 @@ async function RepaymentModel(v) {
 }
 
 async function onExcel() {
-  let isExcel = true
+  let isExcel = true;
   if (selectionData.length > 0) {
-    selectionData.forEach(item=>{
-      if(alertlist.value.indexOf(item.orderId) != -1){
-        isExcel = false
+    selectionData.forEach(item => {
+      if (alertlist.value.indexOf(item.orderId) != -1) {
+        isExcel = false;
       }
-    })
+    });
   }
-  if(alertlist.value == '' || (selectionData.length > 0 && isExcel)){
+  if (alertlist.value == "" || (selectionData.length > 0 && isExcel)) {
     let fields: [] = [];
     let filename = props.filename;
-    let orderId = '';
-    let isfull = "";
+    let orderId = "";
+    let isfull = "(";
+    let isorderId = "(";
     for (let key in props.Columnslist) {
       if (key.indexOf("value") == -1) {
-        if (isfull.length > 0) {
-          isfull += props.Columnslist[key] != "datetime" ? " or " + key + " = ''" : " or " + key + " is null";
-        } else {
-          isfull += props.Columnslist[key] != "datetime" ? key + " = ''" : key + " is null";
+        if (key != "orderId" && key != "compensatoryTime2") {
+          if (isfull.length > 1) {
+            isfull += props.Columnslist[key] != "datetime" ? " or " + key + " = '' or " + key + " is null" : " or " + key + " is null";
+          } else {
+            isfull += props.Columnslist[key] != "datetime" ? key + " = '' or " + key + " is null" : key + " is null";
+          }
         }
       }
     }
+    isfull += ")";
     if (selectionData.length > 0) {
       for (let i = 0; i < selectionData.length; i++) {
         orderId += "a.orderId = '" + selectionData[i].orderId + "' OR ";
+        isorderId += "orderId = '" + selectionData[i].orderId + "' OR ";
       }
-    }else{
+      isfull += " and " + isorderId.slice(0, -4) + ")";
+    } else {
       for (let i = 0; i < BasicData.value.length; i++) {
         orderId += "a.orderId = '" + BasicData.value[i].orderId + "' OR ";
       }
     }
-    let postdata = { id: BactID.value, isfull: isfull, orderId: orderId.slice(0, -4)}
+    let postdata = { id: BactID.value, isfull: isfull, orderId: orderId.slice(0, -4) };
     let coderray = "";
     let excel = await getBatchexportlist(postdata);
+    let transfer = "";
+    let Transfer = await getTransfer({ id: excel.result[0].contract_id });
+    if (Transfer.success) {
+      Transfer.result.forEach((item, i) => {
+        transfer += `${item.transferTime}，${item.assignor}与${item.assignee}签订${item.transferName}，约定将上述债权转让给${item.assignee}。`;
+      });
+    }
     for (let i = 0; i < excel.result.length; i++) {
       coderray += excel.result[i].orderId + ",";
+      columns.forEach(item => {
+        if (excel.result[i].file_name == item.title) {
+          excel.result[i].file_name = item.dataIndex;
+        }
+      });
+      excel.result[i].transfer = transfer;
+      excel.result[i].guarantee = excel.result[i].guaranteecontract_name ? `同日，被告与${excel.result[i].guarantee_name}签订${excel.result[i].guaranteecontract_name}，约定${excel.result[i].guarantee_name}对被告的债务(包括但不限于全部本金、利息、违约金、赔偿金、贷款人实现债权与担保权利而发生的费用)承担连带责任保证担保。` : "";
+      excel.result[i].guarantee1 = excel.result[i].guaranteecontract_name ? `根据${excel.result[i].guaranteecontract_name}，${excel.result[i].guarantee_name}代被告清偿了剩余本金及利息${excel.result[i].compensation}元。` : "";
     }
     columns.forEach(item => {
       if (item.title != "操作") {
-        fields[item.dataIndex] = item.title;
+        fields[item.dataIndex] = item.dataIndex;
       }
       if (item.customRender) {
         for (let i = 0; i < excel.result.length; i++) {
@@ -256,28 +279,27 @@ async function onExcel() {
         }
       }
     });
-    fields['enterprise_address'] = '企业地址'
-    fields['enterprise_code'] = '统一社会信用代码'
-    fields['enterprise_repname'] = '法定代表人'
-    fields['project_source'] = '项目来源'
-    fields['platform_name'] = '平台名称'
-    fields['operator_name'] = '平台运营方名称'
-    fields['guarantee_name'] = '担保企业'
-    fields['loancontract_name'] = '贷款合同名称'
-    fields['guaranteecontract_name'] = '担保合同名称'
-    fields['transfer_name'] = '债权转让协议名称1'
-    fields['transfer_name1'] = '债权转让协议名称2'
-    fields['transfer_time'] = '债权转让签订时间'
-    fields['bank_name'] = '开户银行'
-    fields['bank_code'] = '银行卡号'
-    fields['other'] = '其他'
+    fields["enterprise_address"] = "enterprise_address";
+    fields["enterprise_code"] = "enterprise_code";
+    fields["enterprise_repname"] = "enterprise_repname";
+    fields["project_source"] = "project_source";
+    fields["platform_name"] = "platform_name";
+    fields["operator_name"] = "operator_name";
+    fields["guarantee_name"] = "guarantee_name";
+    fields["loancontract_name"] = "loancontract_name";
+    fields["bank_name"] = "bank_name";
+    fields["bank_code"] = "bank_code";
+    fields["other"] = "other";
+    fields["transfer"] = "transfer";
+    fields["guarantee"] = "guarantee";
+    fields["guarantee1"] = "guarantee1";
+    fields["file_name"] = "file_name";
     xlsx(excel.result, fields, filename);
     let res = await getbackAndDownload({ id: BactID.value, coderray: coderray.slice(0, -1) });
     if (res.success) {
       if (res.result !== "") {
         let url = res.result.replace(new RegExp("C:/不良资产处置", "g"), "");
         window.open("http://139.9.215.117:8091/selenium/sys/common/static" + url);
-        xlsx(json, fields, filename);
         message.success("导出成功！");
       } else {
         message.warning("数据导出失败！");
@@ -285,7 +307,7 @@ async function onExcel() {
     } else {
       message.warning("数据导出失败！");
     }
-  }else{
+  } else {
     message.warning("导出数据中有未处理的问题数据，请按照提示修改之后再导出！");
   }
 }
@@ -294,11 +316,11 @@ function editData(v) {
   emit("edit", v);
 }
 
-function isexport(){
+function isexport() {
   createConfirm({
-    iconType: 'info',
-    title: '提示',
-    content: '是否生成诉状？',
+    iconType: "info",
+    title: "提示",
+    content: "是否生成诉状？",
     onOk: () => exportWord()
   });
 }
@@ -320,55 +342,78 @@ function updateModel(v) {
 }
 
 function base64DataURLToArrayBuffer(dataURL) {
-  const base64Regex = /^data:image\/(png|jpg|svg|svg\+xml);base64,/
+  const base64Regex = /^data:image\/(png|jpg|svg|svg\+xml);base64,/;
   if (!base64Regex.test(dataURL)) {
-    return false
+    return false;
   }
-  const stringBase64 = dataURL.replace(base64Regex, '')
-  let binaryString
-  if (typeof window !== 'undefined') {
-    binaryString = window.atob(stringBase64)
+  const stringBase64 = dataURL.replace(base64Regex, "");
+  let binaryString;
+  if (typeof window !== "undefined") {
+    binaryString = window.atob(stringBase64);
   } else {
-    binaryString = new Buffer(stringBase64, 'base64').toString('binary')
+    binaryString = new Buffer(stringBase64, "base64").toString("binary");
   }
-  const len = binaryString.length
-  const bytes = new Uint8Array(len)
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
   for (let i = 0; i < len; i++) {
-    const ascii = binaryString.charCodeAt(i)
-    bytes[i] = ascii
+    const ascii = binaryString.charCodeAt(i);
+    bytes[i] = ascii;
   }
-  return bytes.buffer
+  return bytes.buffer;
 }
 
 async function exportWord() {
-  let orderId = '';
-  let isfull = ''
+  let orderId = "";
+  let isfull = "(";
+  let isorderId = "(";
   for (let key in props.Columnslist) {
     if (key.indexOf("value") == -1) {
-      if (isfull.length > 0) {
-        isfull += props.Columnslist[key] != "datetime" ? " or " + key + " = ''" : " or " + key + " is null";
-      } else {
-        isfull += props.Columnslist[key] != "datetime" ? key + " = ''" : key + " is null";
+      if (key != "orderId" && key != "compensatoryTime2") {
+        if (isfull.length > 1) {
+          isfull += props.Columnslist[key] != "datetime" ? " or " + key + " = '' or " + key + " is null" : " or " + key + " is null";
+        } else {
+          isfull += props.Columnslist[key] != "datetime" ? key + " = '' or " + key + " is null" : key + " is null";
+        }
       }
     }
   }
+  isfull += ")";
   if (selectionData.length > 0) {
     for (let i = 0; i < selectionData.length; i++) {
       orderId += "a.orderId = '" + selectionData[i].orderId + "' OR ";
+      isorderId += "orderId = '" + selectionData[i].orderId + "' OR ";
     }
   }
-  let postdata = selectionData.length > 0 ? { id: BactID.value, isfull: isfull, orderId: orderId.slice(0, -4)} : { id: BactID.value, isfull: isfull}
+  let postdata = selectionData.length > 0 ? {
+    id: BactID.value,
+    isfull: isfull + " and " + isorderId.slice(0, -4) + ")",
+    orderId: orderId.slice(0, -4)
+  } : { id: BactID.value, isfull: isfull };
   let excel = await getBatchexportlist(postdata);
-  for (let i = 0; i < excel.result.length; i++) {
-    getdeleteFile({filePath: excel.result[i].project_name + "\\" +excel.result[i].batch_name + `\\file\\${excel.result[i].UserId}_${excel.result[i].name}_${excel.result[i].orderId}`}).then(res=>{
-      getExport(excel.result[i])
-    })
+  if (excel.success) {
+    for (let i = 0; i < excel.result.length; i++) {
+      let rss = await getdeleteFile({
+        filePath: excel.result[i].project_name + "\\" + excel.result[i].batch_name + `\\file`,
+        bizid: excel.result[i].orderId
+      });
+    }
+    let Transfer = await getTransfer({ id: excel.result[0].contract_id });
+    if (Transfer.success) {
+      let transfer = "";
+      Transfer.result.forEach((item, i) => {
+        transfer += `${item.transferTime}，${item.assignor}与${item.assignee}签订${item.transferName}，约定将上述债权转让给${item.assignee}。`;
+      });
+      for (let i = 0; i < excel.result.length; i++) {
+        getExport(excel.result[i], transfer);
+      }
+    }
+  } else {
+    message.error("生成诉状失败，请确认数据完整性");
   }
 }
 
-async function getExport(v){
-
-  JSZipUtils.getBinaryContent('dom.docx', function(error: any, content: any) {
+async function getExport(v, Transfer) {
+  JSZipUtils.getBinaryContent("dom.docx", function(error: any, content: any) {
     if (error) {
       throw error;
     }
@@ -397,33 +442,32 @@ async function getExport(v){
       // 用模板变量的值替换所有模板变量
       doc.render({
         enterprise_name: v.enterprise_name.split("-")[0],
-        enterprise_address:v.enterprise_address,
-        enterprise_code:v.enterprise_code,
-        name:v.name,
-        sex:v.sex,
-        birthData:`${v.identityId.slice(6,10)}年${v.identityId.slice(10,12)}月${v.identityId.slice(12,14)}日`,
-        addressService:v.addressService,
-        identityId:v.identityId,
-        phone:v.phone,
-        currentdebt:v.Currentdebt,
-        endTime:getNowFormatDate(v.defaultTime),
-        startTime: v.compensatoryTime2,
-        startTime1:v.compensatoryTime1,
-        LoanTime:getNowFormatDate(v.LoanTime),
-        platform_name:v.platform_name,
-        LendingBank:v.LendingBank,
-        LoanAmount:v.LoanAmount,
-        interestRate:v.InterestRate,
-        loancontract_name:v.loancontract_name,
-        guaranteecontract_name:v.guaranteecontract_name,
-        transfer_name:v.transfer_name,
-        transfer_name1:v.transfer_name1,
-        transfer_time:v.transfer_time,
-        LoanTerm:v.LoanTerm,
-        guarantee_name:v.guarantee_name,
-        operator_name:v.operator_name,
-        court:v.enterprise_stats == '原告所在地' ? smart(v.enterprise_address).county : smart(v.addressService).county,
-        datatime:getNowFormatDate('')
+        enterprise_address: v.enterprise_address,
+        enterprise_code: v.enterprise_code,
+        name: v.name,
+        sex: v.sex,
+        birthData: `${v.identityId.slice(6, 10)}年${v.identityId.slice(10, 12)}月${v.identityId.slice(12, 14)}日`,
+        addressService: v.addressService,
+        identityId: v.identityId,
+        phone: v.phone,
+        currentdebt: v.Currentdebt,
+        endTime: getNowFormatDate(v.defaultTime),
+        startTime: v.compensatoryTime2 ? getNowFormatDate(v.compensatoryTime2) : getNowFormatDate(v.makeloanTime),
+        startTime1: getNowFormatDate(v.compensatoryTime1),
+        LoanTime: getNowFormatDate(v.LoanTime),
+        platform_name: v.platform_name,
+        LendingBank: v.LendingBank,
+        LoanAmount: v.LoanAmount,
+        compensation: v.compensation,
+        interestRate: v.InterestRate,
+        loancontract_name: v.loancontract_name,
+        guarantee: v.guaranteecontract_name ? `同日，被告与${v.guarantee_name}签订${v.guaranteecontract_name}，约定${v.guarantee_name}对被告的债务(包括但不限于全部本金、利息、违约金、赔偿金、贷款人实现债权与担保权利而发生的费用)承担连带责任保证担保。` : "",
+        guarantee1: v.guaranteecontract_name ? `根据${v.guaranteecontract_name}，${v.guarantee_name}代被告清偿了剩余本金及利息${v.compensation}元。` : "",
+        LoanTerm: v.LoanTerm,
+        transfer: Transfer,
+        court: v.enterprise_stats == "原告所在地" ? smart(v.enterprise_address).county : smart(v.addressService).county,
+        datatime: getNowFormatDate(""),
+        nation: v.nation ? v.nation.indexOf("族") != -1 ? v.nation : v.nation + "族" : "民族未知"
       });
     } catch (error) {
       // 抛出异常
@@ -442,16 +486,16 @@ async function getExport(v){
       type: "blob",
       mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     });
-    const chunkfile = new File([out], '民事起诉状.docx')
+    const chunkfile = new File([out], "民事起诉状.docx");
     let params = {
       file: chunkfile,
-      filename:'民事起诉状.docx',
-      data: { fileType:4,filePath:v.project_name + "\\" +v.batch_name + `\\file/${v.UserId}_${v.name}_${v.orderId}` },
+      filename: "民事起诉状.docx",
+      data: { fileType: "4", filePath: v.project_name + "\\" + v.batch_name + `\\file`, bizid: v.orderId }
     };
 
-    uploadFile(params,isReturn).then(res=>{
+    uploadFile(params, isReturn).then(res => {
 
-    })
+    });
   });
 }
 
@@ -495,9 +539,13 @@ watch(() => props.ChemicalsData, () => {
         a += item.orderId + "、";
       }
     });
-    if (a != "") {
-      alertlist.value = "订单号码为" + a.slice(0, -1) + "地址解析失败，请重新填写！";
-    }
+    props.ChemicalsData.columns.forEach(item => {
+      if (item.dataIndex == "orderId") {
+        if (a != "") {
+          alertlist.value = item.title + "为" + a.slice(0, -1) + "地址解析失败，请重新填写！";
+        }
+      }
+    });
     if (props.ChemicalsData.data) {
       Message.value = "共" + BasicData.value.length + "条数据";
     }

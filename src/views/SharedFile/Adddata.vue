@@ -198,7 +198,7 @@
         </a-tab-pane>
       </a-tabs>
       <a-tabs defaultActiveKey="4" v-if="props.TypeShow === 4">
-        <a-tab-pane tab="文件上传列别" key="4">
+        <a-tab-pane tab="文件上传列表" key="4">
           <div>
             <a-form ref="formRef1" :model="FormData" :label-col="labelCol" :wrapper-col="wrapperCol">
               <a-row type="flex" style="margin-bottom: 10px" :gutter="16">
@@ -209,19 +209,19 @@
               <a-row type="flex" style="margin-bottom: 10px" :gutter="24" v-for="(item, index) in FormData.loitSeleniumFile"
                      :key="index">
                 <a-col :span="10">
-                  <a-form-item>
+                  <a-form-item :rules="[{ required: true, message: '请输入文件名称!' }]" :name="['loitSeleniumFile', index, 'fileName']">
                     <a-input v-model:value="item.fileName" :disabled="disabled"/>
                   </a-form-item>
                 </a-col>
                 <a-col :span="10">
-                  <a-form-item>
-                    <JUpload v-model:value="item.filePath" :disabled="disabled || !item.fileName" :data="{fileType:'4',filePath:'Allocation',bizName:item.fileName}"></JUpload>
+                  <a-form-item :rules="[{ required: true, message: '请上传文件!' }]" :name="['loitSeleniumFile', index, 'filePath']">
+                    <JUpload v-model:value="item.filePath" :disabled="disabled || !item.fileName" :data="{fileType:'5',filePath:'Allocation',bizName:item.fileName}"></JUpload>
                   </a-form-item>
                 </a-col>
                 <a-col :span="2" v-if="!disabled">
                   <a-form-item>
                     <!--                    <Icon icon="ant-design:minus-outlined" @click="delRowCustom(index)" style="fontsize: 20px" />-->
-                    <a @click="delRowCustom(index,'fileList')">删除</a>
+                    <a @click="delRowCustom(index,'loitSeleniumFile')">删除</a>
                   </a-form-item>
                 </a-col>
               </a-row>
@@ -245,12 +245,12 @@
               <a-row type="flex" style="margin-bottom: 10px" :gutter="24" v-for="(item, index) in FormData.loitSeleniumUnfile"
                      :key="index">
                 <a-col :span="10">
-                  <a-form-item>
+                  <a-form-item :rules="[{ required: true, message: '请输入文件夹名称!' }]" :name="['loitSeleniumUnfile', index, 'unfileName']">
                     <a-input placeholder="文件夹名称" v-model:value="item.unfileName" :disabled="disabled"/>
                   </a-form-item>
                 </a-col>
                 <a-col :span="10">
-                  <a-form-item>
+                  <a-form-item :rules="[{ required: true, message: '请选择文件命名方式!' }]" :name="['loitSeleniumUnfile', index, 'unfileType']">
                     <a-select placeholder="文件命名方式"  v-model:value="item.unfileType" :disabled="disabled">
                       <a-select-option v-for="(item1,index) in formdata.loitSeleniumDisposition" :key="index" :value="item1.dispositionRemark">{{item1.dispositionRemark}}</a-select-option>
                     </a-select>
@@ -272,7 +272,7 @@
         </a-tab-pane>
         <a-tab-pane tab="数据表字段信息配置" key="5">
           <div>
-            <a-form ref="formRef1" :model="FormData" :label-col="labelCol" :wrapper-col="wrapperCol">
+            <a-form ref="formRef2" :model="FormData" :label-col="labelCol" :wrapper-col="wrapperCol">
               <a-row type="flex" style="margin-bottom: 10px" :gutter="16">
                 <a-col :span="11">字段名称</a-col>
                 <a-col :span="11">必填项名称</a-col>
@@ -280,7 +280,7 @@
               <a-row type="flex" style="margin-bottom: 10px" :gutter="24" v-for="(item, index) in FormData.loitSeleniumDisposition"
                      :key="index">
                 <a-col :span="11">
-                  <a-form-item>
+                  <a-form-item :rules="[{ required: true, message: '请选择字段名称!' }]" :name="['loitSeleniumDisposition', index, 'id']">
                     <a-select placeholder="字段名称"  v-model:value="item.id" :disabled="disabled">
                       <a-select-option v-for="(item1,index) in formdata.loitSeleniumDisposition" :key="index" :value="item1.id">{{item1.dispositionRemark}}</a-select-option>
                     </a-select>
@@ -297,7 +297,7 @@
         </a-tab-pane>
         <a-tab-pane tab="还款计划表字段信息配置" key="6">
           <div>
-            <a-form ref="formRef1" :model="FormData" :label-col="labelCol" :wrapper-col="wrapperCol">
+            <a-form ref="formRef3" :model="FormData" :label-col="labelCol" :wrapper-col="wrapperCol">
               <a-row type="flex" style="margin-bottom: 10px" :gutter="16">
                 <a-col :span="11">字段名称</a-col>
                 <a-col :span="11">必填项名称</a-col>
@@ -305,7 +305,7 @@
               <a-row type="flex" style="margin-bottom: 10px" :gutter="24" v-for="(item, index) in FormData.loitSeleniumRepaymentData"
                      :key="index">
                 <a-col :span="11">
-                  <a-form-item>
+                  <a-form-item :rules="[{ required: true, message: '请选择字段名称!' }]" :name="['loitSeleniumRepaymentData', index, 'id']">
                     <a-select placeholder="字段名称"  v-model:value="item.id" :disabled="disabled">
                       <a-select-option v-for="(item1,index) in formdata.loitSeleniumRepaymentData" :key="index" :value="item1.id">{{item1.dispositionRemark}}</a-select-option>
                     </a-select>
@@ -321,13 +321,61 @@
           </div>
         </a-tab-pane>
       </a-tabs>
+      <a-tabs defaultActiveKey="1" v-if="props.TypeShow === 6">
+        <a-tab-pane tab="债权转让合同列表" key="1">
+          <div>
+            <a-form ref="formRef1" :model="FormData" :label-col="labelCol" :wrapper-col="wrapperCol">
+              <a-row type="flex" style="margin-bottom: 10px" :gutter="16">
+                <a-col :span="7">债权转让合同名称</a-col>
+                <a-col :span="5">转让方</a-col>
+                <a-col :span="5">受让方</a-col>
+                <a-col :span="4">签订时间</a-col>
+                <a-col :span="2" v-if="!disabled">操作</a-col>
+              </a-row>
+              <a-row type="flex" style="margin-bottom: 10px" :gutter="24" v-for="(item, index) in FormData.loitSeleniumTransfer"
+                     :key="index">
+                <a-col :span="7">
+                  <a-form-item>
+                    <a-input placeholder="债权转让合同名称" v-model:value="item.transferName" :disabled="disabled"/>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="5">
+                  <a-form-item>
+                    <a-input placeholder="转让方" v-model:value="item.assignor" :disabled="disabled"/>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="5">
+                  <a-form-item>
+                    <a-input placeholder="受让方" v-model:value="item.assignee" :disabled="disabled"/>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item>
+                    <a-date-picker placeholder="签订时间" v-model:value="item.transferTime" valueFormat="YYYY年MM月DD日" :disabled="disabled"/>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="2" v-if="!disabled">
+                  <a-form-item>
+                    <!--                    <Icon icon="ant-design:minus-outlined" @click="delRowCustom(index)" style="fontsize: 20px" />-->
+                    <a @click="delRowCustom(index,'loitSeleniumTransfer')">删除</a>
+                  </a-form-item>
+                </a-col>
+              </a-row>
+              <a-button type="dashed" style="width: 98%; margin-top: 10px" @click="addRowCustom('loitSeleniumTransfer',FormData.loitSeleniumTransfer.length)" v-if="!disabled">
+                <Icon icon="ph:plus-bold" />
+                添加字段信息
+              </a-button>
+            </a-form>
+          </div>
+        </a-tab-pane>
+      </a-tabs>
     </div>
   </BasicModal>
 </template>
 <script lang="ts" setup>
 import BasicModal from "/@/components/Modal/src/BasicModal.vue";
 import { BasicForm, useForm } from "/@/components/Form";
-import { onMounted, reactive, ref, unref, watch } from "vue";
+import { computed, reactive, ref, unref, watch } from "vue";
 import { BasicColumn, BasicTable, useTable } from "/@/components/Table";
 import { useModalInner } from "@/components/Modal";
 import { loitSeleniumData, loitSeleniumRepaymentData } from "@/views/SharedFile/tableData";
@@ -343,6 +391,9 @@ const wrapperCol = reactive({
 });
 const formRef = ref();
 let schemas = ref([]);
+const formRef1 = ref(null);
+const formRef2 = ref(null);
+const formRef3 = ref(null);
 let emit = defineEmits(["addData", "closeModal","editData"]);
 //获取父页面传递的数据
 const props = defineProps({
@@ -372,19 +423,21 @@ const props = defineProps({
     default: false
   }
 });
+let formdata = ref({});
 const [registerForm, { validate, setProps, setFieldsValue }] = useForm({
   //注册表单列
   schemas: schemas,
   labelWidth: "110px",
   showActionButtonGroup: false,
 });
-let formdata = ref({});
+
 const FormData = reactive({
   loitSeleniumDisposition: loitSeleniumData,
   loitSeleniumRepaymentData: loitSeleniumRepaymentData,
   ConfigurList:[],
   loitSeleniumFile:[{}],
   loitSeleniumUnfile:[{}],
+  loitSeleniumTransfer:[{}]
 });
 
 async function addData() {
@@ -394,55 +447,123 @@ async function addData() {
       FormData.loitSeleniumDisposition[i].dispositionSerial = i
     })
     a.loitSeleniumDisposition = FormData.loitSeleniumDisposition
+    if(props.title == '添加'){
+      emit("addData", a);
+    }else {
+      a.id = formdata.value.id
+      emit("editData", a);
+    }
   }else if(props.TypeShow === 3){
     a.ConfigurList = FormData.ConfigurList
+    if(props.title == '添加'){
+      emit("addData", a);
+    }else {
+      a.id = formdata.value.id
+      emit("editData", a);
+    }
   }else if(props.TypeShow === 4){
-    a.loitSeleniumFile = FormData.loitSeleniumFile
+    formRef1.value
+      .validate()
+      .then(() => {
+        a.loitSeleniumFile = FormData.loitSeleniumFile
+        if(props.title == '添加'){
+          emit("addData", a);
+        }else {
+          a.id = formdata.value.id
+          emit("editData", a);
+        }
+      })
+      .catch(error => {
+      });
+
   }else if(props.TypeShow === 5){
-    a.loitSeleniumDisposition = []
-    a.loitSeleniumRepaymentData = []
-    FormData.loitSeleniumRepaymentData.forEach(item1=>{
-      formdata.value.loitSeleniumRepaymentData.forEach(item=>{
-        if(item.id == item1.id){
-          a.loitSeleniumRepaymentData.push({
-            id:item1.id,
-            dispositionName:item1.dispositionName,
-            dispositionType:item1.dispositionType,
-            dispositionRemark:item.dispositionRemark,
-            dispositionLength:item1.dispositionLength
+    formRef1.value
+      .validate()
+      .then(() => {
+        formRef2.value
+          .validate()
+          .then(() => {
+            formRef3.value
+              .validate()
+              .then(() => {
+                a.loitSeleniumDisposition = []
+                a.loitSeleniumRepaymentData = []
+                FormData.loitSeleniumRepaymentData.forEach(item1=>{
+                  formdata.value.loitSeleniumRepaymentData.forEach(item=>{
+                    if(item.id == item1.id){
+                      a.loitSeleniumRepaymentData.push({
+                        id:item1.id,
+                        dispositionName:item1.dispositionName,
+                        dispositionType:item1.dispositionType,
+                        dispositionRemark:item.dispositionRemark,
+                        dispositionLength:item1.dispositionLength
+                      })
+                    }
+                  })
+                })
+                FormData.loitSeleniumDisposition.forEach(item1=>{
+                  formdata.value.loitSeleniumDisposition.forEach(item=>{
+                    if(item.id == item1.id){
+                      a.loitSeleniumDisposition.push({
+                        id:item1.id,
+                        dispositionName:item1.dispositionName,
+                        dispositionType:item1.dispositionType,
+                        dispositionRemark:item.dispositionRemark,
+                        dispositionLength:item1.dispositionLength,
+                        isQuery:item1.isQuery
+                      })
+                      return
+                    }
+                  })
+                })
+                a.loitSeleniumUnfile = FormData.loitSeleniumUnfile
+                if(props.title == '添加'){
+                  emit("addData", a);
+                }else {
+                  a.id = formdata.value.id
+                  emit("editData", a);
+                }
+              })
+              .catch(error => {
+              });
           })
-        }
+          .catch(error => {
+          });
       })
+      .catch(error => {
+      });
+  }else if(props.TypeShow === 6){
+    FormData.loitSeleniumTransfer.forEach((item,i)=>{
+      FormData.loitSeleniumTransfer[i].transferSerial = i
     })
-    FormData.loitSeleniumDisposition.forEach(item1=>{
-      formdata.value.loitSeleniumDisposition.forEach(item=>{
-        if(item.id == item1.id){
-          a.loitSeleniumDisposition.push({
-            id:item1.id,
-            dispositionName:item1.dispositionName,
-            dispositionType:item1.dispositionType,
-            dispositionRemark:item.dispositionRemark,
-            dispositionLength:item1.dispositionLength,
-            isQuery:item1.isQuery
-          })
-          return
-        }
-      })
-    })
-    a.loitSeleniumUnfile = FormData.loitSeleniumUnfile
-  }
-  console.log(a);
-  if(props.title == '添加'){
-    emit("addData", a);
-  }else {
-    a.id = formdata.value.id
-    emit("editData", a);
+    a.loitSeleniumTransfer = FormData.loitSeleniumTransfer
+    if(props.title == '添加'){
+      emit("addData", a);
+    }else {
+      a.id = formdata.value.id
+      emit("editData", a);
+    }
+  }else{
+    if(props.title == '添加'){
+      emit("addData", a);
+    }else {
+      a.id = formdata.value.id
+      emit("editData", a);
+    }
   }
 }
 
 function closeModal() {
-  FormData.ConfigurList = []
+  FormData.loitSeleniumDisposition.forEach((item,i)=>{
+    FormData.loitSeleniumDisposition[i].id = null
+  })
+  FormData.loitSeleniumRepaymentData.forEach((item,i)=>{
+    FormData.loitSeleniumRepaymentData[i].id = null
+  })
   FormData.loitSeleniumDisposition = []
+  FormData.loitSeleniumFile=[{}]
+  FormData.loitSeleniumUnfile=[{}]
+  FormData.loitSeleniumTransfer = [{}]
   emit("closeModal");
 }
 
@@ -456,7 +577,7 @@ async function setData() {
 function addRowCustom(v,length) {
   if(props.TypeShow === 2 || props.TypeShow === 1) {
     FormData[v].push({dispositionType:"varchar",dispositionLength:255,dispositionName:'value' + (length+1),dispositionRemark:'',isQuery:'2'});
-  }else if(props.TypeShow === 3 || props.TypeShow === 4 || props.TypeShow === 5) {
+  }else if(props.TypeShow === 3 || props.TypeShow === 4 || props.TypeShow === 5 || props.TypeShow === 6) {
     FormData[v].push({});
   }
 }
@@ -482,6 +603,8 @@ watch(() => props.userData, () => {
       }else if(props.TypeShow === 4 && formdata.value.loitSeleniumFile){
         FormData.loitSeleniumFile = formdata.value.loitSeleniumFile
       }else if(props.TypeShow === 5){
+      }else if(props.TypeShow === 6 && formdata.value.loitSeleniumTransfer){
+        FormData.loitSeleniumTransfer = formdata.value.loitSeleniumTransfer
       }
       setTimeout(() => {
         setFieldsValue(formdata.value);
